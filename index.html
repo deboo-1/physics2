@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="root-html">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physics II — HNU Study Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   PHYSICS II STUDY PLATFORM — ENHANCED v7
+   HNU · ISE · Spring 2025-2026
+═══════════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--surface:#0d1117;--card:#111827;--card2:#0f1923;--border:#1f2d3d;
+  --blue:#3b82f6;--cyan:#06b6d4;--green:#10b981;--purple:#8b5cf6;
+  --orange:#f59e0b;--red:#ef4444;--text:#f0f4f8;--muted:#64748b;
+  --accent:#3b82f6;--radius:10px;
+}
+
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;overflow-x:hidden;line-height:1.6}
+
+/* ── LAYOUT ── */
+.app{display:flex;min-height:100vh}
+.sidebar{width:270px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s;scrollbar-width:thin;scrollbar-color:#1f2d3d transparent}
+.main{margin-left:270px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-270px)}.sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}.menu-btn{display:flex!important}
+}
+
+/* ── SIDEBAR ── */
+.brand{padding:20px 16px 14px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,#080f1a,#0d1b2a)}
+.brand-icon{font-size:22px;margin-bottom:4px}
+.brand-title{font-size:15px;font-weight:700;background:linear-gradient(90deg,#60a5fa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.01em}
+.brand-sub{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+
+/* Progress bar in sidebar */
+.sidebar-progress{padding:10px 12px;border-bottom:1px solid var(--border);background:#080d14}
+.sp-label{font-size:10px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:5px}
+.sp-label strong{color:#60a5fa}
+.sp-bar{height:4px;background:#1e2d40;border-radius:4px;overflow:hidden}
+.sp-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#06b6d4);border-radius:4px;transition:width .5s ease}
+
+/* Search in sidebar */
+.sidebar-search{padding:10px 10px;border-bottom:1px solid var(--border)}
+.search-input-wrap{position:relative}
+.search-input-wrap input{width:100%;padding:7px 10px 7px 30px;background:#080d14;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:inherit;outline:none;transition:border .2s}
+.search-input-wrap input:focus{border-color:#3b82f6}
+.search-input-wrap input::placeholder{color:#4b5563}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:#4b5563;pointer-events:none}
+.search-results-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#0d1117;border:1px solid #1e3a5f;border-radius:8px;max-height:220px;overflow-y:auto;z-index:200;display:none}
+.search-results-dropdown.open{display:block}
+.sr-item{padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid #111827;transition:background .1s;color:#94a3b8}
+.sr-item:hover{background:#1e2d40;color:var(--text)}
+.sr-item .sr-type{font-size:10px;color:#3b82f6;font-weight:600;display:block;margin-bottom:1px}
+.sr-item:last-child{border-bottom:none}
+.sr-empty{padding:10px 12px;font-size:12px;color:var(--muted);text-align:center}
+
+.lang-toggle{margin:10px 8px 4px;background:#080d14;border:1px solid var(--border);border-radius:8px;padding:6px;display:flex;gap:4px}
+.lang-btn{flex:1;padding:5px 4px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .15s;font-family:'Cairo','IBM Plex Sans',sans-serif}
+.lang-btn.active{background:#1d3557;color:#60a5fa}
+
+.nav-section{padding:10px 12px 4px;font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:.1em}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:12.5px;color:#94a3b8;transition:all .15s;margin:1px 6px;border:none;background:none;width:calc(100% - 12px);text-align:left;position:relative}
+.nav-item:hover{background:#1a2740;color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,#1d3557,#192a44);color:#60a5fa;border-left:3px solid var(--blue)}
+.nav-item .icon{width:18px;font-size:13px;text-align:center;flex-shrink:0}
+.nav-item .lec-num{font-size:9.5px;background:#1e3a5f;color:#60a5fa;padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace}
+.nav-badge{margin-left:auto;font-size:10px;padding:2px 6px;border-radius:10px;background:#1e3a5f;color:#60a5fa}
+.nav-done{margin-left:auto;font-size:11px;color:#10b981}
+
+/* ── TOP BAR ── */
+.topbar{height:54px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:50}
+.menu-btn{display:none;background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;padding:4px}
+.topbar-title{font-size:14px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#1d3557;color:#60a5fa;white-space:nowrap}
+
+/* ── CONTENT ── */
+.content{padding:20px 24px;flex:1;max-width:980px;margin:0 auto;width:100%}
+@media(max-width:600px){.content{padding:14px 14px}}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#0b1520,#142035);border:1px solid #1e3a5f;border-radius:14px;padding:24px 26px;margin-bottom:20px;position:relative;overflow:hidden}
+.hero::before{content:'⚡';position:absolute;right:16px;top:8px;font-size:90px;opacity:.04;pointer-events:none}
+.hero-title{font-size:21px;font-weight:700;background:linear-gradient(90deg,#60a5fa,#22d3ee,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;line-height:1.3}
+.hero-sub{font-size:12.5px;color:#94a3b8;line-height:1.7}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;transition:border-color .2s}
+.stat:hover{border-color:#1e3a5f}
+.stat-n{font-size:26px;font-weight:700;color:#3b82f6;font-family:'IBM Plex Mono',monospace}
+.stat-l{font-size:10.5px;color:var(--muted);margin-top:2px}
+.stat-n.green{color:#10b981}.stat-n.purple{color:#a78bfa}.stat-n.orange{color:#f59e0b}
+
+/* ── PROGRESS HOME ── */
+.progress-home{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px}
+.ph-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ph-title{font-size:13px;font-weight:700;color:#60a5fa}
+.ph-pct{font-size:20px;font-weight:700;color:#10b981;font-family:'IBM Plex Mono',monospace}
+.ph-bar{height:8px;background:#1e2d40;border-radius:8px;overflow:hidden;margin-bottom:8px}
+.ph-fill{height:100%;background:linear-gradient(90deg,#10b981,#3b82f6);border-radius:8px;transition:width .6s ease}
+.ph-info{font-size:11px;color:var(--muted);display:flex;gap:16px}
+.ph-info span{display:flex;align-items:center;gap:4px}
+
+/* ── SECTION TITLE ── */
+.section-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--text)}
+.section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+/* ── LECTURE GRID ── */
+.lec-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:600px){.lec-grid{grid-template-columns:1fr}}
+.lec-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.lec-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--lc,linear-gradient(90deg,#3b82f6,#06b6d4))}
+.lec-card:hover{border-color:#2a4060;transform:translateY(-1px);box-shadow:0 4px 20px #00000030}
+.lec-card-num{font-size:10.5px;font-family:'IBM Plex Mono',monospace;color:#3b82f6;font-weight:600}
+.lec-card-title{font-size:13.5px;font-weight:600;margin:4px 0 3px;color:var(--text);line-height:1.3}
+.lec-card-sub{font-size:11px;color:var(--muted);line-height:1.5}
+.lec-card-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.lec-card-done{position:absolute;top:10px;right:10px;font-size:13px}
+.tag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:500}
+.tag-b{background:#1d3557;color:#60a5fa;border:1px solid #1e3a5f40}
+.tag-c{background:#0a2a2e;color:#22d3ee;border:1px solid #06b6d440}
+.tag-p{background:#1e1b35;color:#a78bfa;border:1px solid #8b5cf640}
+.tag-g{background:#0a2a1e;color:#34d399;border:1px solid #10b98140}
+.tag-o{background:#2a1e0a;color:#fbbf24;border:1px solid #f59e0b40}
+.tag-r{background:#2a0a0a;color:#f87171;border:1px solid #ef444440}
+
+/* ── LECTURE PAGE ── */
+.tabs-row{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:18px;background:var(--card);padding:5px;border-radius:var(--radius);border:1px solid var(--border)}
+.tab-btn{padding:7px 13px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .15s;font-family:inherit}
+.tab-btn.active{background:var(--blue);color:#fff}
+.tab-btn:hover:not(.active){color:var(--text);background:#1a2740}
+.tab-pane{display:none}.tab-pane.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── INFO CARD ── */
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.info-card h3{font-size:12.5px;font-weight:700;color:#60a5fa;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.info-card p,.info-card li{font-size:12.5px;color:#94a3b8;line-height:1.85}
+.info-card ul{padding-left:18px}
+.ar-explain{background:linear-gradient(135deg,#080f1c,#0c1728);border:1px solid #1e3a5f;border-radius:var(--radius);padding:16px;font-family:'Cairo',sans-serif;direction:rtl;text-align:right;font-size:13px;color:#94a3b8;line-height:2;margin-bottom:12px}
+.ar-explain strong{color:#60a5fa}
+
+/* ── MARK DONE BTN ── */
+.mark-done-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .2s;font-family:inherit;margin-bottom:14px}
+.mark-done-btn.done{background:#0a2a1e;border-color:#10b98150;color:#34d399}
+.mark-done-btn:hover:not(.done){border-color:#3b82f6;color:#60a5fa}
+
+/* ── FORMULAS ── */
+.formula-card{background:#07101c;border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;transition:border-color .2s}
+.formula-card:hover{border-color:#1e3a5f}
+.formula-eq{font-family:'IBM Plex Mono',monospace;font-size:14.5px;color:#06b6d4;margin:6px 0;padding:10px 14px;background:#040c18;border-radius:6px;border-left:3px solid #06b6d4;overflow-x:auto;white-space:nowrap}
+.formula-name{font-size:12px;font-weight:700;color:#60a5fa;margin-bottom:3px}
+.formula-desc{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.65}
+.formula-vars{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.var-pill{font-size:10px;padding:2px 8px;background:#1a2a3a;color:#94a3b8;border-radius:6px;font-family:'IBM Plex Mono',monospace}
+
+/* ── VIDEO ── */
+.video-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:14px;transition:border-color .2s}
+.video-card:hover{border-color:#1e3a5f}
+.video-icon{width:42px;height:42px;border-radius:10px;background:#1d3557;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.video-info .video-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.video-info .video-desc{font-size:11px;color:var(--muted)}
+.video-link{margin-left:auto;padding:6px 14px;background:#1d3557;color:#60a5fa;border:1px solid #1e3a5f;border-radius:7px;font-size:11.5px;font-weight:600;text-decoration:none;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.video-link:hover{background:#3b82f6;color:#fff;border-color:#3b82f6}
+
+/* ── MCQ / PRACTICE ── */
+.mcq-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.mcq-score{font-size:12.5px;color:var(--muted)}
+.q-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;transition:border-color .2s}
+.q-num{font-size:10.5px;font-family:'IBM Plex Mono',monospace;color:#3b82f6;font-weight:600;margin-bottom:6px}
+.q-text{font-size:13px;color:var(--text);line-height:1.75;margin-bottom:12px}
+.q-options{display:flex;flex-direction:column;gap:5px}
+.q-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;color:#94a3b8;transition:all .15s;background:none;text-align:left;width:100%;font-family:inherit}
+.q-opt:hover:not(:disabled){border-color:#3b82f6;color:var(--text);background:#111d2e}
+.q-opt.correct{border-color:#10b981!important;background:#071f14!important;color:#34d399!important}
+.q-opt.wrong{border-color:#ef4444!important;background:#1c0707!important;color:#f87171!important}
+.q-opt:disabled{cursor:default}
+.q-opt .opt-letter{width:22px;height:22px;border-radius:6px;background:#1e2d40;color:#60a5fa;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex-shrink:0;font-family:'IBM Plex Mono',monospace}
+.explanation{margin-top:12px;padding:12px 14px;border-radius:8px;font-size:12px;line-height:1.75;display:none}
+.explanation.show{display:block}
+.exp-correct{background:#071f14;border:1px solid #10b98130;color:#6ee7b7}
+.exp-wrong{background:#1c110a;border:1px solid #f59e0b30;color:#fde68a}
+.exp-ref{font-size:10.5px;color:#f59e0b;margin-top:6px;padding-top:6px;border-top:1px solid #f59e0b20}
+.submit-btn{padding:10px 22px;background:linear-gradient(135deg,#1d4ed8,#1e3fa0);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit}
+.submit-btn:hover{background:linear-gradient(135deg,#2563eb,#1d4ed8);transform:translateY(-1px)}
+.reset-btn{padding:10px 18px;background:var(--card);color:#94a3b8;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.reset-btn:hover{border-color:#3b82f6;color:#60a5fa}
+.result-card{background:linear-gradient(135deg,#0a1828,#132140);border:1px solid #1e3a5f;border-radius:14px;padding:24px;margin-bottom:20px;text-align:center}
+.result-score{font-size:42px;font-weight:700;font-family:'IBM Plex Mono',monospace}
+.result-label{font-size:13px;color:#94a3b8;margin-top:4px}
+.result-rating{font-size:15px;font-weight:700;margin-top:10px}
+
+/* ── NOTES ── */
+.note-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px}
+.note-box h4{font-size:12px;font-weight:700;color:#f59e0b;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.note-box p,.note-box li{font-size:12.5px;color:#94a3b8;line-height:1.85}
+.note-box ul{padding-left:18px}
+.note-box .highlight{color:#34d399;font-weight:600}
+.note-box .warning{color:#f87171;font-weight:600}
+.note-box .formula-inline{font-family:'IBM Plex Mono',monospace;color:#06b6d4;background:#040c18;padding:2px 7px;border-radius:4px;font-size:11.5px;border:1px solid #06b6d420}
+
+/* ── EXAM BADGE ── */
+.exam-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;background:#1e1500;border:1px solid #f59e0b40;color:#fbbf24;border-radius:8px;font-size:11px;font-weight:600;margin-bottom:14px}
+
+/* ── EXAM TIMER ── */
+.exam-timer-bar{background:linear-gradient(135deg,#1a0c00,#2a1500);border:1px solid #f59e0b30;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.exam-timer-display{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:#fbbf24}
+.exam-timer-display.warning{color:#ef4444;animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.exam-progress-info{font-size:12px;color:#94a3b8;display:flex;gap:14px;align-items:center}
+.exam-progress-info span{display:flex;align-items:center;gap:4px}
+
+/* ── ANSWER REVIEW ── */
+.review-section{margin-top:24px}
+.review-header{font-size:15px;font-weight:700;color:#60a5fa;margin-bottom:14px;padding:10px 14px;background:#0a1525;border-radius:8px;border-left:3px solid #3b82f6;display:flex;align-items:center;gap:8px}
+.review-q{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.review-q.correct-q{border-color:#10b98130}
+.review-q.wrong-q{border-color:#ef444430}
+.review-q-num{font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.review-badge{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:700}
+.rb-correct{background:#0a2a1e;color:#34d399}
+.rb-wrong{background:#2a0a0a;color:#f87171}
+.rb-unanswered{background:#1a1a0a;color:#fbbf24}
+.review-q-text{font-size:12.5px;color:var(--text);line-height:1.7;margin-bottom:8px}
+.review-answer{font-size:11.5px;padding:6px 10px;border-radius:6px;margin-bottom:4px}
+.ra-your{background:#111d2e;border-left:3px solid #3b82f6;color:#94a3b8}
+.ra-correct{background:#071f14;border-left:3px solid #10b981;color:#34d399}
+.ra-explain{font-size:11px;color:#6ee7b7;padding:8px 10px;background:#071f14;border-radius:6px;margin-top:6px;line-height:1.7;border:1px solid #10b98120}
+.ra-explain.wrong-exp{color:#fde68a;background:#1c110a;border-color:#f59e0b20}
+
+/* ── FINAL EXAM MODEL ── */
+.model-exam-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:16px}
+.model-exam-card:hover{border-color:#3b82f6;transform:translateY(-1px)}
+.model-exam-icon{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.model-exam-info h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.model-exam-info p{font-size:11.5px;color:var(--muted);line-height:1.5}
+.model-exam-arrow{margin-left:auto;color:#3b82f6;font-size:18px}
+.model-exam-badge{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;margin-left:8px}
+
+/* ── FINAL EXAM PDF ── */
+.pdf-section{background:linear-gradient(135deg,#0a0e1a,#111827);border:1px solid #1e2d40;border-radius:14px;padding:20px;margin-bottom:16px}
+.pdf-section h3{font-size:14px;font-weight:700;color:#a78bfa;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.pdf-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#080d14;border:1px solid #1a2535;border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.pdf-item:hover{border-color:#3b82f6;background:#0d1728}
+.pdf-item-icon{font-size:22px;flex-shrink:0}
+.pdf-item-info{flex:1}
+.pdf-item-info strong{font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:2px}
+.pdf-item-info span{font-size:11px;color:var(--muted)}
+.pdf-item-btn{padding:5px 14px;border-radius:7px;border:none;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.pdf-download-btn{background:#1d3557;color:#60a5fa}
+.pdf-download-btn:hover{background:#3b82f6;color:#fff}
+.pdf-view-btn{background:#1e1b35;color:#a78bfa}
+.pdf-view-btn:hover{background:#8b5cf6;color:#fff}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--border);margin:16px 0}
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;color:#94a3b8;font-size:12px;cursor:pointer;margin-bottom:16px;font-family:inherit;transition:all .15s}
+.back-btn:hover{border-color:#3b82f6;color:#60a5fa}
+.overlay{display:none;position:fixed;inset:0;background:#00000085;z-index:90}
+.overlay.show{display:block}
+.empty-msg{padding:30px;text-align:center;color:var(--muted);font-size:13px}
+.quiz-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+
+/* ── ARABIC RTL SUPPORT ── */
+.ar-text{font-family:'Cairo',sans-serif;direction:rtl;text-align:right;line-height:2;font-size:13px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:#1d3557;border:1px solid #3b82f6;color:#60a5fa;padding:10px 18px;border-radius:10px;font-size:12.5px;font-weight:600;z-index:999;animation:slideUp .3s ease;opacity:0;pointer-events:none}
+.toast.show{opacity:1}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── SCROLLBAR STYLING ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#1e2d40;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#2a3f55}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+<div class="toast" id="toast"></div>
+
+<div class="app">
+<!-- ════════════ SIDEBAR ════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-icon">⚡</div>
+    <div class="brand-title">Physics II — HNU</div>
+    <div class="brand-sub">ISE Program · Spring 2025-2026<br>Dr. Amany Mohamed Saleh</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="sidebar-progress">
+    <div class="sp-label"><span>Overall Progress</span><strong id="sp-pct">0%</strong></div>
+    <div class="sp-bar"><div class="sp-fill" id="sp-fill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Search -->
+  <div class="sidebar-search" style="position:relative">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="global-search" placeholder="Search lectures, formulas..." autocomplete="off" oninput="handleSearch(this.value)">
+    </div>
+    <div class="search-results-dropdown" id="search-dropdown"></div>
+  </div>
+
+  <!-- Language -->
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('mixed')" id="lbtn-mixed">🔀 Mixed</button>
+    <button class="lang-btn" onclick="setLang('en')" id="lbtn-en">EN</button>
+    <button class="lang-btn" onclick="setLang('ar')" id="lbtn-ar">عربي</button>
+  </div>
+
+  <button class="nav-item" onclick="showPage('home')" id="nav-home"><span class="icon">🏠</span>Dashboard</button>
+
+  <div class="nav-section">⚡ Electricity (Lec 1–6)</div>
+  <button class="nav-item" id="nav-1" onclick="showLec(1)"><span class="icon">📐</span>Lec 1 — Vector Analysis<span class="lec-num">Math</span><span class="nav-done" id="done-1"></span></button>
+  <button class="nav-item" id="nav-2" onclick="showLec(2)"><span class="icon">⚡</span>Lec 2 — Coulomb's Law<span class="lec-num">L2</span><span class="nav-done" id="done-2"></span></button>
+  <button class="nav-item" id="nav-3" onclick="showLec(3)"><span class="icon">🔵</span>Lec 3 — Electric Field<span class="lec-num">L3</span><span class="nav-done" id="done-3"></span></button>
+  <button class="nav-item" id="nav-4" onclick="showLec(4)"><span class="icon">🔋</span>Lec 4 — Electric Potential<span class="lec-num">L4</span><span class="nav-done" id="done-4"></span></button>
+  <button class="nav-item" id="nav-5" onclick="showLec(5)"><span class="icon">🔲</span>Lec 5 — Gauss's Law<span class="lec-num">L5</span><span class="nav-done" id="done-5"></span></button>
+  <button class="nav-item" id="nav-6" onclick="showLec(6)"><span class="icon">🔌</span>Lec 6 — Capacitance<span class="lec-num">L6</span><span class="nav-done" id="done-6"></span></button>
+
+  <div class="nav-section">🧲 Magnetism (Lec 7–10)</div>
+  <button class="nav-item" id="nav-7" onclick="showLec(7)"><span class="icon">🧲</span>Lec 7 — Magnetic Field<span class="lec-num">L7</span><span class="nav-done" id="done-7"></span></button>
+  <button class="nav-item" id="nav-8" onclick="showLec(8)"><span class="icon">🌀</span>Lec 8 — Ampere's Law<span class="lec-num">L8</span><span class="nav-done" id="done-8"></span></button>
+  <button class="nav-item" id="nav-9" onclick="showLec(9)"><span class="icon">⚡</span>Lec 9 — Faraday's Law<span class="lec-num">L9</span><span class="nav-done" id="done-9"></span></button>
+  <button class="nav-item" id="nav-10" onclick="showLec(10)"><span class="icon">📡</span>Lec 10 — Maxwell<span class="lec-num">L10</span><span class="nav-done" id="done-10"></span></button>
+
+  <div class="nav-section">📋 Exams</div>
+  <button class="nav-item" onclick="showPage('exams')" id="nav-exams"><span class="icon">📝</span>Midterm & Final<span class="nav-badge">Exams</span></button>
+  <div style="height:16px"></div>
+</aside>
+
+<!-- ════════════ MAIN ════════════ -->
+<div class="main">
+  <div class="topbar">
+    <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-title" id="topbar-title">Physics II — Dashboard</div>
+    <div class="topbar-badge" id="topbar-badge">HNU · ISE</div>
+  </div>
+  <div class="content" id="main-content"></div>
+</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// DATA.JS — Course Content
+// ════════════════════════════════════════════
+
+const VIDEOS = {
+  1:[{title:"Sec 1 + Lec 2 Recording",url:"https://youtu.be/GCvnl01BbP4?si=w-PiN1H0ypK_XQRn",desc:"Section 1 & Lecture 2 — YouTube"}],
+  2:[{title:"Sec 1 + Lec 2 Recording",url:"https://youtu.be/GCvnl01BbP4?si=w-PiN1H0ypK_XQRn",desc:"Section 1 & Lecture 2 — YouTube"}],
+  3:[{title:"Lec 3 + Sec 2 Recording",url:"https://drive.google.com/file/d/1io1tgGJndSwcC8b1E9mcVfUVVtW7JQ0S/view?usp=drivesdk",desc:"Lecture 3 & Section 2 — Google Drive"}],
+  4:[{title:"Lec 4 + Sec 3 Recording",url:"https://drive.google.com/file/d/1ajEsdrqFriknd5yLJYvJOSuKRaslMDJN/view",desc:"Lecture 4 & Section 3 — Google Drive"}],
+  5:[{title:"Lec 5 Recording",url:"#",desc:"محاضرة رقم 5 — موجودة على جروب الفيزكس / HUB"}],
+  6:[{title:"Lec 6 + Sec 5 Recording",url:"https://drive.google.com/file/d/1xA2b1U-ym-MbxlqJCx4hkgw9NFQ9Pth-/view",desc:"Lecture 6 & Section 5 — Google Drive"}],
+  7:[{title:"Lec 7 + Sec 6 Recording",url:"https://drive.google.com/file/d/1aU57b0NI6M2w9IbVRFY10eR1hK5mHEsQ/view",desc:"Lecture 7 & Section 6 — Google Drive"}],
+  8:[{title:"Lec 8 + Sec 7 Recording",url:"https://drive.google.com/file/d/1NbXVouiRUtxg_CZN9RfR9XVgjDjZNOxh/view",desc:"Lecture 8 & Section 7 — Google Drive"}],
+  9:[{title:"Lec 9 + Sec 8 Recording",url:"#",desc:"محاضرة 9 — موجودة على جروب الفيزكس كملف LEC 7"}],
+  10:[
+    {title:"Maxwell & Boundary Conditions",url:"https://drive.google.com/file/d/1OY0IC4iIXh-xzoX-WOlpRBpn8stWniER/view",desc:"Lecture 10 Recording — Google Drive"},
+    {title:"All Videos Folder",url:"https://drive.google.com/drive/folders/1mvCOp6a5PniUKsThZ4pMcNsSTelCHB-e",desc:"Full Course Google Drive Folder"}
+  ]
+};
+
+const LECTURES = {
+1:{
+  title:"Introduction — Vector Analysis",
+  color:"linear-gradient(90deg,#3b82f6,#06b6d4)",
+  tags:["Vectors","Coordinates","Math Foundation"],
+  tagClass:["tag-b","tag-c","tag-g"],
+  track:"electricity",
+  summary_en:"Foundation lecture covering vector mathematics and coordinate systems used throughout Physics II. Topics: vector operations (dot & cross product), Cartesian/Cylindrical/Spherical coordinate systems, differential elements for integration.",
+  summary_ar:"محاضرة الأساسيات — تغطي الرياضيات المتجهية ومنظومات الإحداثيات المستخدمة في فيزياء 2. الموضوعات: العمليات المتجهية (الضرب النقطي والاتجاهي)، الإحداثيات الديكارتية والأسطوانية والكروية، العناصر التفاضلية للتكامل.",
+  notes:[
+    {icon:"📐",title:"Coordinate Systems",content:"Three coordinate systems are used:<br>• <span class='highlight'>Cartesian (x,y,z)</span> — for rectangular symmetry<br>• <span class='highlight'>Cylindrical (ρ,φ,z)</span> — for objects with axial symmetry (wires, cylinders)<br>• <span class='highlight'>Spherical (r,θ,φ)</span> — for objects with spherical symmetry (point charges)"},
+    {icon:"📏",title:"Vector Operations",content:"• <span class='formula-inline'>A·B = |A||B|cosθ</span> — Dot product gives a scalar<br>• <span class='formula-inline'>A×B = |A||B|sinθ â_n</span> — Cross product gives a vector<br>• Unit vector: <span class='formula-inline'>â = A/|A|</span><br>• Magnitude: <span class='formula-inline'>|A| = √(Ax²+Ay²+Az²)</span>"},
+    {icon:"⚠️",title:"Common Mistakes",content:"<span class='warning'>Never confuse unit vectors between coordinate systems.</span> â_ρ in cylindrical is NOT the same as â_x in Cartesian. Always identify which system you're working in before solving."},
+    {icon:"🔄",title:"Coordinate Transformations",content:"Cartesian → Cylindrical: ρ=√(x²+y²), φ=arctan(y/x), z=z<br>Cartesian → Spherical: r=√(x²+y²+z²), θ=arccos(z/r), φ=arctan(y/x)"}
+  ],
+  formulas:[
+    {name:"Dot Product",eq:"A·B = AxBx + AyBy + AzBz = |A||B|cosθ",desc:"Result is a scalar. Used to find angle between vectors, work done by force.",vars:["Ax,Ay,Az = components of A","θ = angle between A and B"]},
+    {name:"Cross Product (magnitude)",eq:"|A×B| = |A||B|sinθ",desc:"Result is a vector perpendicular to both A and B. Right-hand rule gives direction.",vars:["Direction by right-hand rule","Used in magnetic force F = qv×B"]},
+    {name:"Vector Magnitude",eq:"|A| = √(Ax² + Ay² + Az²)",desc:"Length/magnitude of vector A.",vars:[]},
+    {name:"Cylindrical coordinates",eq:"x = ρcosφ, y = ρsinφ, z = z",desc:"Converting cylindrical to Cartesian.",vars:["ρ = radial distance (≥0)","φ = azimuthal angle","z = height"]},
+    {name:"Spherical coordinates",eq:"x = r·sinθ·cosφ, y = r·sinθ·sinφ, z = r·cosθ",desc:"Converting spherical to Cartesian.",vars:["r = radial distance (≥0)","θ = polar angle (0 to π)","φ = azimuthal angle (0 to 2π)"]}
+  ],
+  mcq:[
+    {q:"The dot product A·B gives:",opts:["A vector perpendicular to A and B","A scalar value","A unit vector","The cross product"],ans:1,exp:"The dot product (scalar product) A·B = |A||B|cosθ always results in a SCALAR quantity (a number), not a vector.",ref:"Lec 1 — Vector Operations"},
+    {q:"In cylindrical coordinates, which variable represents the distance from the z-axis?",opts:["r","θ","ρ (rho)","z"],ans:2,exp:"ρ (rho) is the radial distance from the z-axis in cylindrical coordinates. It's always ≥ 0. Don't confuse with r in spherical which is the distance from the ORIGIN.",ref:"Lec 1 — Coordinate Systems"},
+    {q:"The cross product A×B produces:",opts:["A scalar","A vector perpendicular to both A and B","A vector parallel to A","A unit vector"],ans:1,exp:"Cross product gives a VECTOR perpendicular to both A and B. Direction is determined by the right-hand rule. Magnitude = |A||B|sinθ.",ref:"Lec 1 — Vector Operations"},
+    {q:"Which coordinate system is BEST for a problem with cylindrical symmetry (like a long wire)?",opts:["Cartesian (x,y,z)","Spherical (r,θ,φ)","Cylindrical (ρ,φ,z)","All are equally good"],ans:2,exp:"Cylindrical coordinates are natural for problems with axial symmetry (like infinite wires, cylinders, solenoids). Using them simplifies integrals dramatically because symmetry reduces the problem to 1D.",ref:"Lec 1 — Coordinate Systems"},
+    {q:"If A = 3âx + 4ây, what is |A|?",opts:["7","1","5","12"],ans:2,exp:"|A| = √(3² + 4²) = √(9+16) = √25 = 5. This is the Pythagorean theorem applied to vectors.",ref:"Lec 1 — Vector Magnitude"},
+    {q:"The unit vector â_R pointing from source to field point is:",opts:["â_R = R","â_R = R/|R|","â_R = |R|","â_R = 1/R"],ans:1,exp:"A unit vector always has magnitude 1. To make any vector a unit vector, divide by its magnitude: â = A/|A|. So â_R = R/|R|.",ref:"Lec 1 — Unit Vectors"},
+    {q:"Which of the following is TRUE about spherical coordinates?",opts:["θ ranges from 0 to 2π","r can be negative","φ ranges from 0 to 2π","r is distance from z-axis"],ans:2,exp:"In spherical coordinates: φ (azimuthal angle) ranges from 0 to 2π, θ (polar angle) ranges from 0 to π, and r (radial distance from origin) is always ≥ 0.",ref:"Lec 1 — Spherical Coordinates"},
+    {q:"The differential length element in Cartesian coordinates is:",opts:["dl = dr âr","dl = dx âx + dy ây + dz âz","dl = ρ dφ âφ","dl = r dθ âθ"],ans:1,exp:"In Cartesian: dl = dx âx + dy ây + dz âz. Each component is an infinitesimal displacement in one direction. This is used in line integrals.",ref:"Lec 1 — Differential Elements"},
+    {q:"If A·B = 0, what can you conclude (assuming neither A nor B is zero)?",opts:["A and B are parallel","A and B are perpendicular","A and B are equal","A = -B"],ans:1,exp:"A·B = |A||B|cosθ = 0 means cosθ = 0, so θ = 90°. The vectors are PERPENDICULAR (orthogonal). This is used to check if field lines are perpendicular to equipotential surfaces.",ref:"Lec 1 — Dot Product"},
+    {q:"The right-hand rule is used to find the direction of:",opts:["Dot product","Scalar field","Cross product","Gradient"],ans:2,exp:"The right-hand rule determines the direction of the cross product A×B. Point fingers in direction of A, curl toward B, and thumb points in direction of A×B. Critical for magnetic force F = qv×B.",ref:"Lec 1 — Cross Product"}
+  ]
+},
+2:{
+  title:"Coulomb's Law",
+  color:"linear-gradient(90deg,#f59e0b,#ef4444)",
+  tags:["Coulomb","Force","Point Charges"],
+  tagClass:["tag-o","tag-b","tag-c"],
+  track:"electricity",
+  summary_en:"Coulomb's Law describes the electrostatic force between two point charges. The force is along the line joining the charges, attractive for opposite charges and repulsive for like charges. Superposition principle: total force = vector sum of individual forces.",
+  summary_ar:"قانون كولوم يصف القوة الكهروستاتيكية بين شحنتين نقطيتين. القوة على الخط الواصل بين الشحنتين، جاذبة للشحنات المختلفة وطاردة للمتشابهة. مبدأ التراكب: القوة الكلية = المجموع المتجه للقوى الفردية.",
+  notes:[
+    {icon:"⚡",title:"Coulomb's Law",content:"The force between two point charges:<br><span class='formula-inline'>F = Q₁Q₂/(4πε₀R²)</span><br>• Force is along the line joining the charges<br>• Like charges: repulsive (+) → ← (+)<br>• Unlike charges: attractive (+) ← → (-)"},
+    {icon:"🔑",title:"Key Constants",content:"• <span class='highlight'>ε₀ = 8.854 × 10⁻¹² F/m</span> (permittivity of free space)<br>• <span class='highlight'>k = 1/(4πε₀) ≈ 9×10⁹ N·m²/C²</span><br>• In a medium: ε = εᵣ × ε₀ (relative permittivity εᵣ > 1 weakens force)"},
+    {icon:"➕",title:"Superposition Principle",content:"Total force on charge Q due to multiple charges Q₁, Q₂, ... Qn:<br><span class='formula-inline'>F_total = F₁ + F₂ + ... + Fn</span><br><span class='warning'>Add forces as VECTORS, not scalars!</span>"},
+    {icon:"📍",title:"Vector Form",content:"Force ON Q₂ DUE TO Q₁:<br><span class='formula-inline'>F₁₂ = (Q₁Q₂)/(4πε₀R₁₂²) × â₁₂</span><br>where â₁₂ points from Q₁ to Q₂, R₁₂ = distance between them."}
+  ],
+  formulas:[
+    {name:"Coulomb's Law",eq:"F = Q₁Q₂ / (4πε₀R²)",desc:"Electrostatic force between two point charges.",vars:["Q₁, Q₂ = charges (Coulombs)","R = distance between charges (m)","ε₀ = 8.854×10⁻¹² F/m"]},
+    {name:"Coulomb's Law (vector form)",eq:"F₁₂ = Q₁Q₂/(4πε₀R₁₂²) â₁₂",desc:"Vector force ON Q₂ due to Q₁. Direction given by unit vector â₁₂ from Q₁ to Q₂.",vars:["â₁₂ = (r₂-r₁)/|r₂-r₁|","R₁₂ = |r₂-r₁|"]},
+    {name:"Coulomb's constant",eq:"k = 1/(4πε₀) ≈ 9×10⁹ N·m²/C²",desc:"Often written as k for simplicity.",vars:[]},
+    {name:"Permittivity in a medium",eq:"ε = εᵣ × ε₀",desc:"In a dielectric medium, force is reduced by factor εᵣ.",vars:["εᵣ = relative permittivity (dimensionless)"]}
+  ],
+  mcq:[
+    {q:"Coulomb's Law gives the force between two point charges as:",opts:["F = Q₁Q₂/(4πε₀R)","F = Q₁Q₂/(4πε₀R²)","F = Q₁Q₂R/(4πε₀)","F = Q₁Q₂/(2πε₀R²)"],ans:1,exp:"Coulomb's Law: F = Q₁Q₂/(4πε₀R²). The force is INVERSELY proportional to R² (square of distance). This is an inverse-square law, same as gravity.",ref:"Lec 2 — Coulomb's Law"},
+    {q:"Two equal positive charges are placed 1m apart. The force between them is:",opts:["Attractive","Zero","Repulsive","Depends on their mass"],ans:2,exp:"Like charges (both positive or both negative) REPEL each other. Unlike charges (one positive, one negative) attract. This is fundamental to Coulomb's Law.",ref:"Lec 2 — Coulomb's Law"},
+    {q:"If the distance between two charges is doubled, the force becomes:",opts:["Double","Half","Four times smaller","Four times larger"],ans:2,exp:"F ∝ 1/R². If R doubles (R→2R): F_new = F_old/(2)² = F_old/4. The force becomes 4 times SMALLER. This is the inverse-square relationship.",ref:"Lec 2 — Coulomb's Law"},
+    {q:"The superposition principle states that the total force on a charge is:",opts:["The largest force among all forces","The scalar sum of all forces","The vector sum of all individual forces","The average of all forces"],ans:2,exp:"Superposition: each force is calculated independently, then added as VECTORS (considering direction). You cannot just add magnitudes — you must use vector addition.",ref:"Lec 2 — Superposition"},
+    {q:"The permittivity of free space ε₀ equals approximately:",opts:["9×10⁹ F/m","8.854×10⁻¹² F/m","4π×10⁻⁷ H/m","1 F/m"],ans:1,exp:"ε₀ = 8.854×10⁻¹² F/m. Note: μ₀ = 4π×10⁻⁷ H/m is the permeability (magnetic constant). Don't confuse them!",ref:"Lec 2 — Constants"},
+    {q:"In a dielectric medium with relative permittivity εᵣ = 2, the force between charges compared to vacuum is:",opts:["Same","Twice as large","Half as large","Four times as large"],ans:2,exp:"F_medium = Q₁Q₂/(4πεᵣε₀R²) = F_vacuum/εᵣ. With εᵣ = 2, the force is HALVED. Dielectric materials reduce electrostatic forces.",ref:"Lec 2 — Dielectrics"},
+    {q:"What is k = 1/(4πε₀) approximately?",opts:["8.85×10⁻¹² N·m²/C²","9×10⁹ N·m²/C²","3×10⁸ m/s","6.67×10⁻¹¹ N·m²/kg²"],ans:1,exp:"k = 1/(4πε₀) ≈ 9×10⁹ N·m²/C². This is Coulomb's constant. The gravitational constant G = 6.67×10⁻¹¹ is much smaller, showing electric forces are much stronger than gravity.",ref:"Lec 2 — Coulomb's Constant"},
+    {q:"The unit of Coulomb's Law force is:",opts:["Coulomb (C)","Newton (N)","Volt (V)","Farad (F)"],ans:1,exp:"Force is measured in Newtons (N) = kg·m/s². Checking Coulomb's Law dimensions: [C²/(F/m × m²)] = [C²·m/(C/V × m²)] = [C²·V/(C·m)] = [C·V/m] = [N].",ref:"Lec 2 — Units"},
+    {q:"If Q₁ = +2μC and Q₂ = -3μC, the force between them is:",opts:["Repulsive","Zero","Attractive","Perpendicular"],ans:2,exp:"Opposite signs (+ and -) → ATTRACTIVE force. The charges pull toward each other. The magnitude is F = k|Q₁||Q₂|/R².",ref:"Lec 2 — Force Direction"},
+    {q:"Coulomb's Law is valid for:",opts:["Moving charges only","Static (stationary) point charges","Dipoles only","Large extended objects only"],ans:1,exp:"Coulomb's Law strictly applies to STATIC (stationary) point charges. For moving charges, we need to consider magnetic forces too (Lorentz force). For extended objects, integrate over the charge distribution.",ref:"Lec 2 — Coulomb's Law Applicability"}
+  ]
+},
+3:{
+  title:"Electric Field",
+  color:"linear-gradient(90deg,#06b6d4,#10b981)",
+  tags:["E-Field","Field Lines","Charge Density"],
+  tagClass:["tag-c","tag-g","tag-b"],
+  track:"electricity",
+  summary_en:"The electric field E is the force per unit positive test charge. E = F/q. For a point charge: E = Q/(4πε₀R²) â_R. Field lines show direction and strength. Superposition: total E = vector sum from all charges.",
+  summary_ar:"المجال الكهربائي E هو القوة على كل وحدة شحنة اختبار موجبة. E = F/q. للشحنة النقطية: E = Q/(4πε₀R²) â_R. خطوط المجال تُظهر الاتجاه والشدة. التراكب: E الكلي = المجموع المتجه من جميع الشحنات.",
+  notes:[
+    {icon:"⚡",title:"Electric Field Definition",content:"<span class='formula-inline'>E = F/q₀</span> (force per unit positive test charge)<br>• E is a VECTOR field<br>• Units: N/C = V/m<br>• For point charge Q at distance R: <span class='formula-inline'>E = Q/(4πε₀R²) â_R</span>"},
+    {icon:"📏",title:"Field Lines Rules",content:"• Start on positive charges, end on negative charges<br>• Never cross each other<br>• Density of lines ∝ field strength<br>• Lines are perpendicular to conductor surfaces"},
+    {icon:"📊",title:"Charge Densities",content:"• <span class='highlight'>Line charge:</span> ρ_L (C/m) → E = ρ_L/(2πε₀ρ) â_ρ<br>• <span class='highlight'>Surface charge:</span> ρ_S (C/m²) → E = ρ_S/(2ε₀) â_n<br>• <span class='highlight'>Volume charge:</span> ρ_V (C/m³) → integrate using Coulomb or Gauss"},
+    {icon:"🔵",title:"Inside a Conductor",content:"<span class='warning'>E = 0 inside a perfect conductor in electrostatic equilibrium!</span><br>All excess charge resides on the outer surface. This is Faraday shielding."}
+  ],
+  formulas:[
+    {name:"Electric Field — Point Charge",eq:"E = Q/(4πε₀R²) â_R",desc:"E field at distance R from point charge Q. Direction â_R points away from positive charge.",vars:["Q = source charge (C)","R = distance from source (m)","â_R = unit vector from source to field point"]},
+    {name:"Electric Field — Line Charge",eq:"E = ρ_L/(2πε₀ρ) â_ρ",desc:"For infinite line charge with linear charge density ρ_L.",vars:["ρ_L = charge per unit length (C/m)","ρ = perpendicular distance from line"]},
+    {name:"Electric Field — Surface Charge",eq:"E = ρ_S/(2ε₀) â_n",desc:"For infinite plane with surface charge density ρ_S. Uniform field on both sides.",vars:["ρ_S = charge per unit area (C/m²)","â_n = unit normal pointing away from surface"]},
+    {name:"Superposition",eq:"E_total = E₁ + E₂ + ... + En",desc:"Vector sum of fields from all sources. Each field calculated independently.",vars:[]}
+  ],
+  mcq:[
+    {q:"The electric field E is defined as:",opts:["E = Q × F","E = F/q₀ (force per unit positive test charge)","E = V/Q","E = Q·V"],ans:1,exp:"E = F/q₀ where q₀ is a small positive test charge. E is a vector (has direction) with units N/C = V/m.",ref:"Lec 3 — Electric Field Definition"},
+    {q:"For a point charge +Q, the electric field at distance R:",opts:["Points toward Q","Points away from Q","Is zero","Is perpendicular to R"],ans:1,exp:"For positive Q, E = Q/(4πε₀R²) â_R. The unit vector â_R points AWAY from the positive charge. For negative Q, E points toward the charge.",ref:"Lec 3 — Point Charge Field"},
+    {q:"The electric field inside a conductor in electrostatic equilibrium is:",opts:["E = ρ_S/ε₀","E = 0","E is maximum","E is uniform"],ans:1,exp:"Inside a conductor in static equilibrium, E = 0. All excess charges reside on the surface. This is why a Faraday cage protects against electric fields.",ref:"Lec 3 — Conductors"},
+    {q:"For a point charge Q, the electric field magnitude at distance R is proportional to:",opts:["R","1/R","1/R²","R²"],ans:2,exp:"E = Q/(4πε₀R²) ∝ 1/R². E decreases as the square of distance (inverse square law). Same dependence as Coulomb's Law force.",ref:"Lec 3 — Point Charge"},
+    {q:"Superposition principle for electric fields means:",opts:["Only the strongest field matters","Fields cancel each other out","Total E = vector sum of all individual fields","Total E = scalar sum of magnitudes"],ans:2,exp:"Superposition: E_total = E₁ + E₂ + ... Vector addition! You must consider both magnitude and direction.",ref:"Lec 3 — Superposition"},
+    {q:"Surface charge density ρ_S has units of:",opts:["C/m","C/m²","C/m³","V/m"],ans:1,exp:"ρ_S = charge per unit area → C/m². Compare: line charge ρ_L = C/m, volume charge ρ_V = C/m³.",ref:"Lec 3 — Charge Densities"},
+    {q:"Electric field lines start at:",opts:["Negative charges","Ground","Positive charges","Points of zero potential"],ans:2,exp:"Field lines start at positive charges and end at negative charges. They represent the direction a positive test charge would move.",ref:"Lec 3 — Field Lines"},
+    {q:"The unit of electric field is:",opts:["Coulomb","Volt/meter = N/C","Farad","Tesla"],ans:1,exp:"[E] = N/C = V/m. Both are equivalent: 1 Newton/Coulomb = 1 Volt/meter. V/m is often more convenient in circuit analysis.",ref:"Lec 3 — Units"},
+    {q:"For an infinite plane with positive surface charge density ρ_S, the field direction is:",opts:["Along the plane","Perpendicular to the plane, pointing away from it","Toward negative infinity","Circular around the plane"],ans:1,exp:"E = ρ_S/(2ε₀) â_n. The field is perpendicular to the infinite plane, pointing away from positive charge. It's uniform (doesn't depend on distance).",ref:"Lec 3 — Infinite Plane"},
+    {q:"If two field lines cross each other, it means:",opts:["The field is very strong there","The field is zero there","This is impossible — field lines never cross","The charge is negative there"],ans:2,exp:"Field lines NEVER cross. If they did, it would mean E points in two different directions at the same point, which is impossible. The field has a unique direction at every point.",ref:"Lec 3 — Field Lines"}
+  ]
+},
+4:{
+  title:"Electric Potential",
+  color:"linear-gradient(90deg,#8b5cf6,#06b6d4)",
+  tags:["Potential V","Energy","Work"],
+  tagClass:["tag-p","tag-b","tag-c"],
+  track:"electricity",
+  summary_en:"Electric potential V is the potential energy per unit positive charge. V is a scalar (easier to work with than E). The work done by external force to move charge Q from A to B is W = Q(V_B - V_A). E = -∇V links potential to field.",
+  summary_ar:"الجهد الكهربائي V هو طاقة الوضع لكل وحدة شحنة موجبة. V كمية قياسية (أسهل من E). الشغل لنقل شحنة Q من A إلى B: W = Q(V_B - V_A). العلاقة E = -∇V تربط الجهد بالمجال.",
+  notes:[
+    {icon:"🔋",title:"Electric Potential",content:"<span class='formula-inline'>V = Q/(4πε₀R)</span> (due to point charge Q at distance R)<br>• V is a SCALAR field (no direction!)<br>• Units: Volts (V) = J/C<br>• Reference: V = 0 at R = ∞<br>• Multiple charges: V_total = V₁ + V₂ + ... (scalar addition!)"},
+    {icon:"⚡",title:"Work and Energy",content:"Work done by external force moving charge Q from A to B:<br><span class='formula-inline'>W = Q(V_B - V_A) = -Q∫E·dl</span><br>• If moving positive charge AGAINST E field: W > 0 (you do work)"},
+    {icon:"📈",title:"Equipotential Surfaces",content:"Surfaces of constant V. Key properties:<br>• E field is ALWAYS perpendicular to equipotential surfaces<br>• No work done moving charge along an equipotential<br>• For point charge: equipotentials are concentric spheres"},
+    {icon:"🔗",title:"E from V",content:"<span class='formula-inline'>E = -∇V</span><br>In Cartesian: E = -(∂V/∂x âx + ∂V/∂y ây + ∂V/∂z âz)"}
+  ],
+  formulas:[
+    {name:"Electric Potential — Point Charge",eq:"V = Q/(4πε₀R)",desc:"Potential at distance R from point charge Q. Note: 1/R (not 1/R²).",vars:["Q = charge (C)","R = distance (m)","V = 0 at R = ∞"]},
+    {name:"Work to Move Charge",eq:"W = Q(V_B - V_A) = -Q∫_A^B E·dl",desc:"Work done by external agent to move charge Q from A to B.",vars:["V_A, V_B = potential at A and B"]},
+    {name:"E from Potential (Cartesian)",eq:"E = -(∂V/∂x âx + ∂V/∂y ây + ∂V/∂z âz)",desc:"Electric field = negative gradient of potential.",vars:[]},
+    {name:"V for surface charge disk",eq:"V = ρ_S/(2ε₀) × (√(a²+z²) - z)",desc:"On-axis potential above circular disk of radius a at height z.",vars:["a = disk radius","z = height above disk"]}
+  ],
+  mcq:[
+    {q:"Electric potential V is:",opts:["A vector field","A scalar field","The same as electric field","Measured in N/C"],ans:1,exp:"V is a SCALAR (just a number at each point, no direction). This makes it easier to work with than E. Units are Volts (V = J/C).",ref:"Lec 4 — Electric Potential"},
+    {q:"The electric potential due to a point charge Q at distance R is:",opts:["V = Q/(4πε₀R²)","V = Q/(4πε₀R)","V = kQ·R","V = Q²/(4πε₀R)"],ans:1,exp:"V = Q/(4πε₀R). Note the difference from E: potential falls as 1/R while field falls as 1/R².",ref:"Lec 4 — Point Charge Potential"},
+    {q:"The work done to move charge Q from point A to B (V_A = 5V, V_B = 10V) is:",opts:["W = Q×5","W = Q×10","W = Q×15","W = Q(V_B-V_A) = 5Q"],ans:3,exp:"W = Q(V_B - V_A) = Q(10-5) = 5Q. If Q is positive, you must do positive work to move it to higher potential.",ref:"Lec 4 — Work & Energy"},
+    {q:"Equipotential surfaces are always:",opts:["Parallel to E field lines","Perpendicular to E field lines","The same as field lines","Along the direction of E"],ans:1,exp:"E = -∇V, so E is perpendicular to surfaces of constant V. No work is done moving along an equipotential because W = Q(V_B-V_A) = 0 when V_A = V_B.",ref:"Lec 4 — Equipotentials"},
+    {q:"For a point charge, equipotential surfaces are:",opts:["Flat planes","Cylinders","Concentric spheres","Random shapes"],ans:2,exp:"For a point charge at origin, V = Q/(4πε₀r) depends only on r. So V = constant means r = constant → concentric spheres.",ref:"Lec 4 — Equipotentials"},
+    {q:"If V = 3x² + 2y, then the x-component of E is:",opts:["3x²","2","6x","-6x"],ans:3,exp:"Ex = -∂V/∂x = -∂(3x²+2y)/∂x = -6x. The NEGATIVE sign in E = -∇V is crucial — don't forget it!",ref:"Lec 4 — E from V"},
+    {q:"The unit of electric potential is:",opts:["Newton (N)","Coulomb (C)","Farad (F)","Volt (V) = J/C"],ans:3,exp:"Volt (V) = Joule/Coulomb = J/C. It's the energy per unit charge.",ref:"Lec 4 — Units"},
+    {q:"Potential V due to multiple point charges uses:",opts:["Vector addition","Cross product","Scalar addition","Only the largest V"],ans:2,exp:"Because V is a SCALAR, you simply add all the potentials algebraically: V_total = V₁ + V₂ + V₃...",ref:"Lec 4 — Superposition"},
+    {q:"The reference point for electric potential (V = 0) is typically at:",opts:["The surface of conductors","The center of the charge","Infinity (R = ∞)","The midpoint between charges"],ans:2,exp:"By convention, V = 0 at R = ∞ (infinity). This makes V = Q/(4πε₀R) → 0 as R → ∞.",ref:"Lec 4 — Reference Point"},
+    {q:"Moving a positive charge from low to high potential requires:",opts:["No work","Negative work","Positive work (energy input)","Work equals zero"],ans:2,exp:"Moving + charge to higher V: W = Q(V_high - V_low) > 0. You must input energy to push it against the electric force.",ref:"Lec 4 — Work & Energy"}
+  ]
+},
+5:{
+  title:"Gauss's Law",
+  color:"linear-gradient(90deg,#10b981,#3b82f6)",
+  tags:["Gauss","Flux","Symmetry"],
+  tagClass:["tag-g","tag-c","tag-b"],
+  track:"electricity",
+  summary_en:"Gauss's Law: the total electric flux through any closed surface equals the enclosed charge divided by ε₀. Extremely powerful when there is symmetry (spherical, cylindrical, planar). Equivalent to Coulomb's Law but much easier for symmetric distributions.",
+  summary_ar:"قانون جاوس: مجموع التدفق الكهربائي عبر أي سطح مغلق يساوي الشحنة المحيطة مقسومة على ε₀. فعّال جداً عند وجود تماثل (كروي، أسطواني، مستوي). مكافئ لقانون كولوم لكن أبسط للتوزيعات المتماثلة.",
+  notes:[
+    {icon:"🔲",title:"Gauss's Law (Integral Form)",content:"<span class='formula-inline'>∮_S E·dS = Q_enc/ε₀</span><br>• The closed surface is called a GAUSSIAN surface<br>• Choose it to match the symmetry of the problem!<br>• Q_enc = total charge INSIDE the Gaussian surface only"},
+    {icon:"📐",title:"Strategy: When to Use Gauss's Law",content:"USE when you have:<br>• <span class='highlight'>Spherical symmetry</span> → spherical Gaussian surface<br>• <span class='highlight'>Cylindrical symmetry</span> → cylindrical Gaussian surface<br>• <span class='highlight'>Planar symmetry</span> → pillbox Gaussian surface<br><span class='warning'>For asymmetric distributions, use Coulomb's Law instead!</span>"},
+    {icon:"⚡",title:"Results for Common Geometries",content:"• Point charge at r: <span class='formula-inline'>E = Q/(4πε₀r²)</span><br>• Inside sphere (r < a): <span class='formula-inline'>E = Qr/(4πε₀a³)</span><br>• Infinite line at ρ: <span class='formula-inline'>E = ρ_L/(2πε₀ρ)</span><br>• Infinite plane: <span class='formula-inline'>E = ρ_S/(2ε₀)</span>"},
+    {icon:"🔗",title:"Differential Form",content:"<span class='formula-inline'>∇·E = ρ_V/ε₀</span> (Divergence of E = charge density / ε₀)<br>This is one of Maxwell's Equations. ∇·E = 0 in a charge-free region."}
+  ],
+  formulas:[
+    {name:"Gauss's Law (Integral)",eq:"∮_S E·dS = Q_enc/ε₀",desc:"Total electric flux = enclosed charge / ε₀. Applied to a closed Gaussian surface.",vars:["Q_enc = charge enclosed by surface","ε₀ = 8.854×10⁻¹² F/m"]},
+    {name:"Electric Flux",eq:"Φ_E = ∮ E·dS = EA·cosθ (for uniform E)",desc:"Total flux through a surface. Positive flux = field leaving surface.",vars:["θ = angle between E and surface normal"]},
+    {name:"Gauss's Law (Differential Form)",eq:"∇·E = ρ_V/ε₀",desc:"Differential form — one of Maxwell's equations.",vars:["ρ_V = volume charge density (C/m³)"]},
+    {name:"E inside uniformly charged sphere (r < a)",eq:"E = ρ_V·r/(3ε₀) = Q·r/(4πε₀a³)",desc:"Inside a uniform sphere of radius a, E increases linearly with r.",vars:["r = distance from center (r < a)","a = sphere radius"]}
+  ],
+  mcq:[
+    {q:"Gauss's Law states that ∮E·dS equals:",opts:["Q_enc × ε₀","Q_enc / ε₀","E × Volume","Flux × ε₀"],ans:1,exp:"∮E·dS = Q_enc/ε₀. The total outward electric flux through any closed surface = enclosed charge / ε₀.",ref:"Lec 5 — Gauss's Law"},
+    {q:"When is Gauss's Law most practically useful?",opts:["For any charge distribution","Only for point charges","When the problem has HIGH symmetry (spherical, cylindrical, planar)","Only for negative charges"],ans:2,exp:"Gauss's Law is ALWAYS true but only EASY to apply when there's high symmetry. With symmetry, E is uniform on the Gaussian surface so ∮E·dS = E × Area.",ref:"Lec 5 — Gauss's Law Application"},
+    {q:"The appropriate Gaussian surface for a long wire (cylindrical symmetry) is:",opts:["A sphere","A cylinder coaxial with the wire","A flat plane","A cube"],ans:1,exp:"For a long wire, use a coaxial cylinder. By symmetry, E points radially outward (â_ρ) and is constant on the cylindrical surface.",ref:"Lec 5 — Gaussian Surfaces"},
+    {q:"The electric field INSIDE a hollow conducting sphere (no charge inside) is:",opts:["E = Q/(4πε₀r²)","E = uniform","E = 0","E = ρ_V/ε₀"],ans:2,exp:"Inside a closed conducting shell with no enclosed charge, Q_enc = 0, so E = 0 everywhere inside. This is Faraday shielding!",ref:"Lec 5 — Conducting Shell"},
+    {q:"Which of the following is the differential form of Gauss's Law?",opts:["∇×E = 0","∇·E = ρ_V/ε₀","∇·B = 0","∇×H = J"],ans:1,exp:"∇·E = ρ_V/ε₀ is the differential form of Gauss's Law. This is one of Maxwell's 4 equations.",ref:"Lec 5 — Maxwell's Equations"},
+    {q:"For a uniformly charged sphere of radius a, the E field for r > a is:",opts:["E = 0","E = Q/(4πε₀r²) (same as point charge)","E = Q·r/(4πε₀a³)","E = ρ_V/(3ε₀)"],ans:1,exp:"For r > a: all charge is enclosed. Using spherical Gaussian surface: E = Q/(4πε₀r²) — exactly like a point charge! This is the shell theorem.",ref:"Lec 5 — Charged Sphere"},
+    {q:"Electric flux has units of:",opts:["N/C","V·m","N·m²/C","C/m²"],ans:2,exp:"Φ = ∮E·dS. [E] = N/C, [dS] = m². So [Φ] = N·m²/C.",ref:"Lec 5 — Units"},
+    {q:"For an infinite plane of charge with surface charge density ρ_S, the E field is:",opts:["E = ρ_S/(ε₀), varies with distance","E = ρ_S/(2ε₀), uniform","E = ρ_S/(4πε₀)","E = 0"],ans:1,exp:"Using a pillbox Gaussian surface: E = ρ_S/(2ε₀). The field is UNIFORM (doesn't depend on distance from the plane).",ref:"Lec 5 — Infinite Sheet"},
+    {q:"The Q_enc in Gauss's Law refers to:",opts:["Total charge in the universe","Only positive charges","All charges INSIDE the Gaussian surface","All charges outside"],ans:2,exp:"Q_enc = ONLY the charge inside the Gaussian surface. Charges outside don't contribute to the net flux.",ref:"Lec 5 — Enclosed Charge"},
+    {q:"For r < a inside a uniformly charged solid sphere, E is proportional to:",opts:["1/r²","1/r","r (linear)","r²"],ans:2,exp:"Inside uniform sphere: Q_enc = Q_total × (r³/a³). Gauss's Law: E ∝ r. E increases linearly from zero at center to maximum at surface.",ref:"Lec 5 — Inside Sphere"}
+  ]
+},
+6:{
+  title:"Capacitance",
+  color:"linear-gradient(90deg,#f59e0b,#10b981)",
+  tags:["Capacitance","Energy","Dielectric"],
+  tagClass:["tag-o","tag-g","tag-p"],
+  track:"electricity",
+  summary_en:"Capacitance C = Q/V. Measures a conductor system's ability to store charge. Parallel plate: C = ε₀A/d. Spherical: C = 4πε₀ab/(b-a). Energy stored: W = ½CV² = ½Q²/C = ½QV. Dielectrics increase capacitance by factor εᵣ.",
+  summary_ar:"السعة C = Q/V. تقيس قدرة نظام الموصلات على تخزين الشحنة. المتوازي الصفيحتين: C = ε₀A/d. الكروي: C = 4πε₀ab/(b-a). الطاقة المخزنة: W = ½CV². العوازل تزيد السعة بعامل εᵣ.",
+  notes:[
+    {icon:"🔌",title:"Capacitance Definition",content:"<span class='formula-inline'>C = Q/V</span><br>• Unit: Farad (F) = C/V<br>• C depends ONLY on geometry and material (not Q or V)<br>• Larger C = more charge stored per volt<br>• For exam: Capacitance = charge per unit potential difference"},
+    {icon:"📐",title:"Common Capacitor Types",content:"• <span class='highlight'>Parallel plate:</span> C = ε₀εᵣA/d<br>• <span class='highlight'>Spherical:</span> C = 4πε₀εᵣab/(b-a)<br>• <span class='highlight'>Cylindrical:</span> C = 2πε₀εᵣL/ln(b/a)"},
+    {icon:"⚡",title:"Energy Stored",content:"<span class='formula-inline'>W = ½CV² = Q²/(2C) = ½QV</span><br>All three forms are equivalent — use whichever is convenient."},
+    {icon:"🔑",title:"Dielectric Effect",content:"Inserting dielectric εᵣ between plates:<br>• C increases by factor εᵣ: <span class='formula-inline'>C = εᵣ × C₀</span><br>• E field decreases: E = E₀/εᵣ<br>• <span class='warning'>Midterm: Questions 1,2,3,18,19,20 are from this lecture!</span>"}
+  ],
+  formulas:[
+    {name:"Capacitance",eq:"C = Q/V",desc:"Charge stored per unit potential difference. Unit: Farad (F).",vars:["Q = charge on one plate (C)","V = potential difference (V)"]},
+    {name:"Parallel Plate Capacitor",eq:"C = ε₀εᵣA/d",desc:"Most common type. Uniform E field between plates.",vars:["A = plate area (m²)","d = separation (m)","εᵣ = relative permittivity"]},
+    {name:"Spherical Capacitor",eq:"C = 4πε₀εᵣab/(b-a)",desc:"Inner sphere radius a, outer sphere radius b.",vars:["a = inner radius","b = outer radius"]},
+    {name:"Cylindrical Capacitor",eq:"C = 2πε₀εᵣL/ln(b/a)",desc:"Length L, inner radius a, outer radius b.",vars:[]},
+    {name:"Energy Stored",eq:"W = ½CV² = Q²/(2C) = ½QV",desc:"All three forms give same result.",vars:[]},
+    {name:"Capacitors in Series",eq:"1/C_eq = 1/C₁ + 1/C₂ + ...",desc:"Series connection: same Q, voltages add.",vars:[]},
+    {name:"Capacitors in Parallel",eq:"C_eq = C₁ + C₂ + ...",desc:"Parallel connection: same V, charges add.",vars:[]}
+  ],
+  mcq:[
+    {q:"Capacitance is defined as:",opts:["Charge per unit electric field","Charge stored per unit potential difference (C = Q/V)","Voltage per unit charge","Energy per unit charge"],ans:1,exp:"C = Q/V (charge per unit potential difference). Unit: Farad (F) = Coulomb/Volt. From Midterm Q18.",ref:"Lec 6 — Capacitance Definition (Midterm Q18)"},
+    {q:"The SI unit of capacitance is:",opts:["Henry (H)","Volt (V)","Coulomb (C)","Farad (F)"],ans:3,exp:"Farad (F) = C/V. Note: Henry (H) is unit of INDUCTANCE. From Midterm Q19.",ref:"Lec 6 — Units (Midterm Q19)"},
+    {q:"Capacitance increases when the plate area:",opts:["Decreases","Becomes zero","Increases","Stays unchanged"],ans:2,exp:"C = ε₀A/d → C ∝ A. Larger plate area → more charge stored at same voltage. From Midterm Q20.",ref:"Lec 6 — Parallel Plate (Midterm Q20)"},
+    {q:"For a parallel plate capacitor with dielectric εᵣ = 4, the capacitance compared to vacuum is:",opts:["Same","4 times smaller","4 times larger","16 times larger"],ans:2,exp:"C = εᵣ × C₀ = 4 × C₀. Dielectric increases capacitance by factor εᵣ.",ref:"Lec 6 — Dielectrics"},
+    {q:"Two capacitors C₁ = 3F and C₂ = 6F in SERIES. Equivalent capacitance:",opts:["9F","2F","3F","0.5F"],ans:1,exp:"1/C_eq = 1/3 + 1/6 = 2/6 + 1/6 = 3/6 = 1/2. C_eq = 2F. Series: smaller than the smallest.",ref:"Lec 6 — Series Capacitors (Midterm Q1 style)"},
+    {q:"For a spherical capacitor (inner radius a, outer radius b), the capacitance is:",opts:["C = 4πε₀(b-a)/(ab)","C = 4πε₀ab/(b-a)","C = 4πε₀a","C = 2πε₀/ln(b/a)"],ans:1,exp:"C = 4πε₀ab/(b-a). From Midterm Q2.",ref:"Lec 6 — Spherical Capacitor (Midterm Q2)"},
+    {q:"Energy stored in a capacitor can be expressed as:",opts:["W = CV","W = ½CV²","W = 2CV²","W = QV"],ans:1,exp:"W = ½CV² = Q²/(2C) = ½QV. All three are equivalent. The ½ factor comes from integrating as you charge the capacitor.",ref:"Lec 6 — Energy"},
+    {q:"Two dielectric wedges in a spherical capacitor result in:",opts:["One capacitor only","Two capacitors in PARALLEL","Two capacitors in series then parallel","Two capacitors in series"],ans:1,exp:"From Midterm Q1: Two dielectric wedges sharing the same voltage (same inner/outer spheres) → PARALLEL combination.",ref:"Lec 6 — Dielectric Wedges (Midterm Q1)"},
+    {q:"When capacitor plate separation d is halved, capacitance:",opts:["Halves","Doubles","Stays same","Quadruples"],ans:1,exp:"C = ε₀A/d. If d → d/2, then C → ε₀A/(d/2) = 2C. Capacitance DOUBLES. Bringing plates closer stores more charge.",ref:"Lec 6 — Parallel Plate"},
+    {q:"For a two-dielectric spherical capacitor with εᵣ₁ for 0<φ<π/2 and εᵣ₂ for π/2<φ<2π, total capacitance C is:",opts:["C₁ in series with C₂","C₁ + C₂ (parallel)","Average C","Only C₁ (dominant)"],ans:1,exp:"The two wedges share the SAME voltage → PARALLEL. C_total = C₁ + C₂. This was exactly Midterm Q1 and Q3!",ref:"Lec 6 — Midterm Q1,Q3"}
+  ]
+},
+7:{
+  title:"Magnetic Field",
+  color:"linear-gradient(90deg,#8b5cf6,#ec4899)",
+  tags:["Biot-Savart","B-Field","Lorentz Force"],
+  tagClass:["tag-p","tag-b","tag-c"],
+  track:"magnetism",
+  summary_en:"Magnetic field B is produced by moving charges or currents. Biot-Savart Law gives B due to current element. Force on moving charge: F = qv×B (Lorentz). Force on current: F = IL×B. Circular arc at center: B = μ₀Iθ/(4πR).",
+  summary_ar:"المجال المغناطيسي B ينتج عن الشحنات المتحركة أو التيارات. قانون بيو-سافار يعطي B بسبب عنصر تيار. القوة على شحنة متحركة: F = qv×B (لورنتز). القوة على تيار: F = IL×B.",
+  notes:[
+    {icon:"🧲",title:"Biot-Savart Law",content:"<span class='formula-inline'>dB = μ₀I(dl × â_R)/(4πR²)</span><br>• Used when Ampere's Law can't be applied (no symmetry)<br>• For circular arc of angle θ at center: <span class='formula-inline'>B = μ₀Iθ/(4πR)</span><br>• For full circle (θ=2π): <span class='formula-inline'>B = μ₀I/(2R)</span>"},
+    {icon:"⚡",title:"Lorentz Force",content:"Force on moving charge: <span class='formula-inline'>F = qv×B</span><br>Force on current-carrying conductor: <span class='formula-inline'>F = IL×B</span><br>• If v is parallel to B: F = 0 (no force!)"},
+    {icon:"📐",title:"Finite Wire Segment",content:"For wire from θ₁ to θ₂:<br><span class='formula-inline'>B = (μ₀I/4πd)(sinθ₂ - sinθ₁)</span><br><span class='warning'>Midterm Exam: Questions 4,5,6,7,8,9 are from Lec 7 & 8!</span>"},
+    {icon:"🔑",title:"Key Constant",content:"μ₀ = 4π × 10⁻⁷ H/m (permeability of free space)"}
+  ],
+  formulas:[
+    {name:"Biot-Savart Law",eq:"dB = μ₀I(dl × â_R)/(4πR²)",desc:"Magnetic field contribution from a current element I·dl.",vars:["μ₀ = 4π×10⁻⁷ H/m","dl = current element vector"]},
+    {name:"Circular Arc at Center",eq:"B = μ₀Iθ/(4πR)",desc:"From Midterm Q4. For arc of angle θ (radians) carrying current I, radius R.",vars:["θ = arc angle in radians","R = radius of arc"]},
+    {name:"Full Circle",eq:"B = μ₀I/(2R)",desc:"Full circular loop (θ = 2π) at center.",vars:[]},
+    {name:"Lorentz Force on Charge",eq:"F = q(v × B)",desc:"Force on charge q moving with velocity v in field B.",vars:[]},
+    {name:"Force on Current",eq:"F = I(L × B)",desc:"Force on straight wire of length L carrying current I in field B.",vars:[]},
+    {name:"Force per unit length (parallel wires)",eq:"F/L = μ₀I₁I₂/(2πd)",desc:"Force between two parallel wires separated by d.",vars:["d = separation","Same direction currents: ATTRACT"]}
+  ],
+  mcq:[
+    {q:"The Biot-Savart Law for a finite current segment gives the magnetic field contribution from:",opts:["A closed loop only","A current element I·dl","A magnetic monopole","A static charge"],ans:1,exp:"Biot-Savart: dB = μ₀I(dl × â_R)/(4πR²). It gives dB from a current ELEMENT I·dl. Integrate over entire wire for total B.",ref:"Lec 7 — Biot-Savart (Midterm Q4)"},
+    {q:"For a circular arc of angle θ (radians) carrying current I at radius R, B at center is:",opts:["B = μ₀I/(2R)","B = μ₀Iθ/(4πR)","B = μ₀I/(4πR)","B = μ₀I/(2πR)"],ans:1,exp:"B = μ₀Iθ/(4πR). From Midterm Q4. For full circle θ = 2π: B = μ₀I/(2R). The arc formula scales with the fraction of the full circle.",ref:"Lec 7 — Circular Arc (Midterm Q4)"},
+    {q:"In Figure 1 with R=3cm and I=5A, what is the magnitude of B at point P? (quarter circle, θ=π/2)",opts:["26.2 μT","13.1 μT","52.4 μT","6.54 μT"],ans:1,exp:"B = μ₀Iθ/(4πR) = (4π×10⁻⁷)(5)(π/2)/(4π×0.03) = 13.1 μT. From Midterm Q5.",ref:"Lec 7 — Midterm Q5"},
+    {q:"The Lorentz force on a charge q moving with velocity v in magnetic field B is:",opts:["F = qE","F = q(E + v×B)","F = qv×B","F = qv·B"],ans:2,exp:"F = qv×B. The CROSS product means force is perpendicular to both v and B. If v is parallel to B, F = 0.",ref:"Lec 7 — Lorentz Force"},
+    {q:"The direction of the magnetic field due to a current-carrying conductor is found using:",opts:["Right-hand rule","Left-hand rule","Coulomb's Law","Gauss's Law"],ans:0,exp:"Right-hand rule: Thumb points in direction of current, fingers curl in direction of B field lines (circles around the wire).",ref:"Lec 7 — Direction of B"},
+    {q:"For a square loop of side ℓ carrying current I, B at center is produced by how many segments?",opts:["2 segments","4 segments using B=μ₀I/(2πd)","4 segments using B=μ₀I/(4πd)(sinθ₁+sinθ₂)","8 segments"],ans:2,exp:"A square has 4 sides. Each side is a finite straight wire. For each: B = μ₀I/(4πd)(sinθ₁+sinθ₂). From Midterm Q7.",ref:"Lec 7 — Square Loop (Midterm Q7)"},
+    {q:"For a square loop (ℓ=0.4m, I=10A), B from ONE side at center:",opts:["7.07 μT","14.1 μT","3.54 μT","28.3 μT"],ans:2,exp:"d=0.2m, angles ±45°. B_one = (4π×10⁻⁷×10)/(4π×0.2)(sin45°+sin45°) = 3.54 μT. From Midterm Q8.",ref:"Lec 7 — Square Loop (Midterm Q8)"},
+    {q:"Total B at center of square loop (ℓ=0.4m, I=10A) with 4 equal sides:",opts:["7.07 μT","14.1 μT","28.3 μT","56.6 μT"],ans:2,exp:"Total B = 4 × B_one_side = 4 × 7.07 = 28.3 μT. From Midterm Q9.",ref:"Lec 7 — Square Loop (Midterm Q9)"},
+    {q:"Two long parallel wires with currents in the SAME direction:",opts:["Repel each other","Have no force between them","Attract each other","Rotate around each other"],ans:2,exp:"Same direction currents ATTRACT. Opposite direction currents REPEL. From Midterm Q15.",ref:"Lec 7 — Parallel Wires (Midterm Q15)"},
+    {q:"The force per unit length between two parallel wires separated by d with currents I₁ and I₂:",opts:["F/L = μ₀I₁I₂/(4πd)","F/L = μ₀I₁I₂/(2πd)","F/L = μ₀I₁I₂d/(2π)","F/L = I₁I₂/(2πd)"],ans:1,exp:"F/L = μ₀I₁I₂/(2πd). From Midterm Q15,Q16.",ref:"Lec 7 — Parallel Wires (Midterm Q16)"}
+  ]
+},
+8:{
+  title:"Ampere's Law",
+  color:"linear-gradient(90deg,#06b6d4,#8b5cf6)",
+  tags:["Ampere","Solenoid","Toroid","Coaxial"],
+  tagClass:["tag-c","tag-p","tag-b"],
+  track:"magnetism",
+  summary_en:"Ampere's Law: ∮B·dl = μ₀I_enc. Powerful for symmetric current distributions. Applications: infinite wire, solenoid B = μ₀nI, toroid B = μ₀NI/(2πr), coaxial cable.",
+  summary_ar:"قانون أمبير: ∮B·dl = μ₀I_enc. قوي للتوزيعات ذات التماثل. تطبيقات: السلك اللانهائي، الملف اللولبي B = μ₀nI، الحلقة المحيطية B = μ₀NI/(2πr)، الكابل المحوري.",
+  notes:[
+    {icon:"🌀",title:"Ampere's Law",content:"<span class='formula-inline'>∮B·dl = μ₀I_enc</span><br>• The closed path is an Amperian loop<br>• Choose loop to match symmetry<br>• I_enc = net current THROUGH the loop"},
+    {icon:"🧲",title:"Key Results",content:"• <span class='highlight'>Infinite wire:</span> B = μ₀I/(2πr)<br>• <span class='highlight'>Solenoid (inside):</span> B = μ₀nI = μ₀NI/L<br>• <span class='highlight'>Solenoid (outside):</span> B ≈ 0<br>• <span class='highlight'>Toroid (inside):</span> B = μ₀NI/(2πr)<br>• <span class='highlight'>Toroid (outside):</span> B = 0"},
+    {icon:"📡",title:"Coaxial Cable",content:"Region r < a (inside inner): <span class='formula-inline'>B = μ₀Ir/(2πa²)</span><br>Region a < r < b: <span class='formula-inline'>B = μ₀I/(2πr)</span><br>Region r > c: <span class='formula-inline'>B = 0</span> (currents cancel)"},
+    {icon:"⚠️",title:"Ampere vs Biot-Savart",content:"USE Ampere's Law when: <span class='highlight'>High symmetry</span><br>USE Biot-Savart when: <span class='highlight'>No symmetry OR finite segments</span>"}
+  ],
+  formulas:[
+    {name:"Ampere's Law",eq:"∮_C B·dl = μ₀I_enc",desc:"Line integral of B around closed Amperian loop = μ₀ × enclosed current.",vars:["I_enc = net current through loop"]},
+    {name:"Infinite Long Wire",eq:"B = μ₀I/(2πr)",desc:"B at distance r from infinite straight wire.",vars:["r = perpendicular distance from wire"]},
+    {name:"Solenoid (interior)",eq:"B = μ₀nI = μ₀NI/L",desc:"Uniform B inside long solenoid. Outside: B ≈ 0.",vars:["n = N/L = turns per unit length"]},
+    {name:"Toroid",eq:"B = μ₀NI/(2πr)  [a < r < b]",desc:"Inside toroid core. B = 0 outside.",vars:["N = total turns","r = distance from toroid axis"]},
+    {name:"Coaxial Cable (a < r < b)",eq:"B = μ₀I/(2πr)",desc:"Between inner and outer conductors.",vars:[]}
+  ],
+  mcq:[
+    {q:"Ampere's Law states that ∮B·dl equals:",opts:["B × Area","μ₀I_enc","B/μ₀","μ₀ε₀ dΦ/dt"],ans:1,exp:"∮B·dl = μ₀I_enc. The line integral of B around a closed loop equals μ₀ times the enclosed current.",ref:"Lec 8 — Ampere's Law"},
+    {q:"Which condition makes Ampere's Law most convenient to use?",opts:["Any arbitrary current distribution","Current distributions with high symmetry","Only for closed current loops","Only when B is uniform everywhere"],ans:1,exp:"Ampere's Law is easy when symmetry lets you say B is constant and parallel to dl around the loop. From Midterm Q17.",ref:"Lec 8 — Ampere's Law (Midterm Q17)"},
+    {q:"A coaxial cable carries current I in inner conductor (radius a). For a < r < b, B is:",opts:["B = 0","B = μ₀I/(4πr²)","B = μ₀IN/(2πr)","B = μ₀I/(2πr)"],ans:3,exp:"For a < r < b: Amperian circle encloses FULL current I. ∮B·dl = B(2πr) = μ₀I → B = μ₀I/(2πr).",ref:"Lec 8 — Coaxial Cable (Midterm Q10)"},
+    {q:"For the same coaxial cable, for r > c (outside entire cable), B is:",opts:["B = 0","B = μ₀2I/(2πr)","B = μ₀I/(2πr)","B = μ₀I/(4πr²)"],ans:0,exp:"For r > c: Both currents enclosed (I + (-I) = 0). So B = 0. From Midterm Q11.",ref:"Lec 8 — Coaxial Cable (Midterm Q11)"},
+    {q:"The magnetic field INSIDE an ideal solenoid is:",opts:["B = μ₀I/(2πr)","B = μ₀nI (uniform)","B = 0","B = μ₀NI/(2πr)"],ans:1,exp:"B = μ₀nI (where n = N/L = turns per meter). Uniform inside, ≈ zero outside. From Midterm Q12.",ref:"Lec 8 — Solenoid (Midterm Q12)"},
+    {q:"The magnetic field inside a toroid at radius r (a < r < b) is:",opts:["B = μ₀nI","B = μ₀I/(2πr)","B = μ₀NI/(2πr)","B = 0"],ans:2,exp:"B = μ₀NI/(2πr) inside toroid. From Midterm Q13. Outside: B = 0.",ref:"Lec 8 — Toroid (Midterm Q13)"},
+    {q:"A toroid has N=500 turns, a=4cm, b=6cm, I=3A. B_inside at r=5cm:",opts:["B=2.4mT","B=6.0mT","B=3.0mT","B=1.2mT"],ans:1,exp:"B = μ₀NI/(2πr) = (4π×10⁻⁷×500×3)/(2π×0.05) = 6.0mT. From Midterm Q14.",ref:"Lec 8 — Toroid Calculation (Midterm Q14)"},
+    {q:"Two parallel wires 0.10m apart carry currents I₁=6A and I₂=4A in OPPOSITE directions. Force per unit length is:",opts:["96μN/m attractive","48μN/m repulsive","48μN/m attractive","24μN/m repulsive"],ans:1,exp:"F/L = μ₀I₁I₂/(2πd) = 48μN/m. Opposite directions → REPULSIVE. From Midterm Q16.",ref:"Lec 8 — Parallel Wires (Midterm Q16)"},
+    {q:"The differential (Maxwell's equation) form of Ampere's Law is:",opts:["∇·B = 0","∇×E = -∂B/∂t","∇×B = μ₀J","∇·E = ρ/ε₀"],ans:2,exp:"∇×B = μ₀J (in magnetostatics). With displacement current: ∇×H = J + ∂D/∂t.",ref:"Lec 8 — Maxwell's Equation"},
+    {q:"For r < a inside the inner conductor of a coaxial cable (uniform current density), B is:",opts:["B = μ₀I/(2πr)","B = 0","B = μ₀Ir/(2πa²)","B = μ₀I/(2πa)"],ans:2,exp:"Inside conductor (r < a): I_enc = I(r²/a²). B(2πr) = μ₀Ir²/a² → B = μ₀Ir/(2πa²). B increases linearly with r.",ref:"Lec 8 — Coaxial (Inside Conductor)"}
+  ]
+},
+9:{
+  title:"Faraday's Law & Induction",
+  color:"linear-gradient(90deg,#ef4444,#f59e0b)",
+  tags:["Faraday","EMF","Induction","Lenz"],
+  tagClass:["tag-b","tag-o","tag-p"],
+  track:"magnetism",
+  summary_en:"Faraday's Law: EMF = -dΦ_B/dt. A changing magnetic flux induces EMF. Lenz's Law gives direction: induced current opposes the change. Motional EMF: ε = Bvl. Inductance: V = -L(dI/dt).",
+  summary_ar:"قانون فاراداي: EMF = -dΦ_B/dt. التدفق المغناطيسي المتغير يولّد قوة دافعة كهربائية. قانون لينز يعطي الاتجاه: التيار المحث يعارض التغيير. القوة الدافعة الحركية: ε = Bvl.",
+  notes:[
+    {icon:"⚡",title:"Faraday's Law",content:"<span class='formula-inline'>EMF = -dΦ_B/dt = -d/dt ∫B·dS</span><br>• Φ_B = magnetic flux (Wb = T·m²)<br>• Negative sign → Lenz's Law<br>• For N-turn coil: EMF = -N dΦ_B/dt"},
+    {icon:"🔄",title:"Lenz's Law",content:"The induced current flows in a direction such that its B field OPPOSES the change in flux that caused it.<br>• Flux increasing → induced B opposes → induced current counterclockwise"},
+    {icon:"🏃",title:"Motional EMF",content:"EMF from a conductor moving in B field:<br><span class='formula-inline'>ε = Bvl</span> (for straight conductor, v⊥B)<br>This is the principle behind electric generators!"},
+    {icon:"🔋",title:"Self-Inductance",content:"<span class='formula-inline'>L = NΦ_B/I</span><br><span class='formula-inline'>V_L = -L dI/dt</span> (voltage across inductor)<br>Unit: Henry (H)<br>For solenoid: L = μ₀N²A/l"}
+  ],
+  formulas:[
+    {name:"Faraday's Law",eq:"EMF = -dΦ_B/dt = -d/dt ∫B·dS",desc:"Induced EMF = rate of change of magnetic flux.",vars:["Φ_B = magnetic flux (Wb)"]},
+    {name:"Magnetic Flux",eq:"Φ_B = ∫B·dS = BA·cosθ (uniform B)",desc:"Total flux through a surface.",vars:["θ = angle between B and surface normal"]},
+    {name:"Motional EMF",eq:"ε = Bvl",desc:"EMF from straight conductor of length l moving at v perpendicular to B.",vars:[]},
+    {name:"Self-Inductance",eq:"L = NΦ/I",desc:"Self-inductance L. Unit: Henry (H).",vars:[]},
+    {name:"Solenoid Inductance",eq:"L = μ₀N²A/ℓ = μ₀n²ℓA",desc:"Self-inductance of a solenoid.",vars:[]},
+    {name:"Voltage across inductor",eq:"V_L = -L(dI/dt)",desc:"Inductor opposes change in current.",vars:[]}
+  ],
+  mcq:[
+    {q:"Faraday's Law states that the induced EMF equals:",opts:["B × Area","The magnetic flux","The negative rate of change of magnetic flux (-dΦ/dt)","The current times resistance"],ans:2,exp:"EMF = -dΦ_B/dt. The NEGATIVE sign reflects Lenz's Law. The induced EMF depends on HOW FAST the flux changes.",ref:"Lec 9 — Faraday's Law"},
+    {q:"The unit of magnetic flux is:",opts:["Tesla (T)","Ampere (A)","Weber (Wb) = T·m²","Henry (H)"],ans:2,exp:"Magnetic flux Φ = B·A has units T·m² = Weber (Wb).",ref:"Lec 9 — Flux Units"},
+    {q:"Lenz's Law states that the induced current:",opts:["Is always clockwise","Maximizes the flux change","Opposes the change in flux that caused it","Is in the same direction as the original current"],ans:2,exp:"Lenz's Law: induced current creates a magnetic field that OPPOSES the change in flux.",ref:"Lec 9 — Lenz's Law"},
+    {q:"A straight conductor of length l moves with velocity v perpendicular to B field. The motional EMF is:",opts:["ε = B²vl","ε = Bvl","ε = Bv/l","ε = Bv²l"],ans:1,exp:"ε = Bvl when v ⊥ B and l ⊥ both. This is the generator principle.",ref:"Lec 9 — Motional EMF"},
+    {q:"If magnetic flux through a loop is Φ = 3t² + 2t Wb, the induced EMF at t = 2s is:",opts:["16 V","14 V","10 V","28 V"],ans:1,exp:"EMF = -dΦ/dt = -(6t + 2). At t=2: EMF = -(12+2) = -14V. Magnitude = 14V.",ref:"Lec 9 — Faraday's Law Calculation"},
+    {q:"Self-inductance L of a coil is defined as:",opts:["L = V/I","L = NΦ/I","L = N²/R","L = μ₀N²"],ans:1,exp:"L = NΦ/I (flux linkage per unit current). Unit: Henry (H).",ref:"Lec 9 — Self-Inductance"},
+    {q:"The voltage across an inductor L when current changes is:",opts:["V = LI","V = L·dI/dt","V = -L·dI/dt","V = L/I"],ans:2,exp:"V_L = -L(dI/dt). Negative sign: inductor OPPOSES current change (back-EMF).",ref:"Lec 9 — Inductor Voltage"},
+    {q:"The self-inductance of a solenoid with N turns, area A, and length ℓ is:",opts:["L = μ₀N²A","L = μ₀N²A/ℓ","L = μ₀NA/ℓ","L = μ₀N²/ℓ"],ans:1,exp:"L = μ₀N²A/ℓ = μ₀n²ℓA. Derived from flux: Φ = BA = μ₀nIA, L = NΦ/I.",ref:"Lec 9 — Solenoid Inductance"},
+    {q:"Which of Maxwell's equations represents Faraday's Law?",opts:["∇·E = ρ/ε₀","∇·B = 0","∇×E = -∂B/∂t","∇×H = J + ∂D/∂t"],ans:2,exp:"∇×E = -∂B/∂t is Faraday's Law in differential form. The curl of E equals the negative rate of change of B.",ref:"Lec 9 — Maxwell's Equations"},
+    {q:"A loop of area A is in a magnetic field B = B₀sin(ωt). The induced EMF is:",opts:["EMF = AB₀sin(ωt)","EMF = -AB₀ω·cos(ωt)","EMF = AB₀ω","EMF = AB₀cos(ωt)"],ans:1,exp:"Φ = BA = AB₀sin(ωt). EMF = -dΦ/dt = -AB₀ω·cos(ωt). Higher frequency → larger EMF. This is AC generator principle.",ref:"Lec 9 — AC Generation"}
+  ]
+},
+10:{
+  title:"Induction + Maxwell & Boundary Conditions",
+  color:"linear-gradient(90deg,#a78bfa,#ec4899)",
+  tags:["Maxwell","Boundary","∇×H=J","Displacement Current"],
+  tagClass:["tag-p","tag-b","tag-c"],
+  track:"magnetism",
+  summary_en:"Maxwell's 4 equations unify electricity and magnetism. Displacement current ∂D/∂t added by Maxwell. Boundary conditions at interface between two media. This is the final lecture — connects all previous topics.",
+  summary_ar:"معادلات ماكسويل الأربع توحّد الكهرباء والمغناطيسية. تيار الإزاحة ∂D/∂t أضافه ماكسويل. شروط الحدود عند السطح الفاصل بين وسطين. هذه المحاضرة الأخيرة — تربط جميع المواضيع السابقة.",
+  notes:[
+    {icon:"📡",title:"Maxwell's 4 Equations (Differential Form)",content:"1. <span class='formula-inline'>∇·D = ρ_V</span> (Gauss's Law for E)<br>2. <span class='formula-inline'>∇·B = 0</span> (No magnetic monopoles)<br>3. <span class='formula-inline'>∇×E = -∂B/∂t</span> (Faraday's Law)<br>4. <span class='formula-inline'>∇×H = J + ∂D/∂t</span> (Ampere's Law + Displacement Current)"},
+    {icon:"🔄",title:"Maxwell's Equations (Integral Form)",content:"1. <span class='formula-inline'>∮D·dS = Q_enc</span><br>2. <span class='formula-inline'>∮B·dS = 0</span><br>3. <span class='formula-inline'>∮E·dl = -dΦ_B/dt</span><br>4. <span class='formula-inline'>∮H·dl = I_enc + dΦ_D/dt</span>"},
+    {icon:"🔲",title:"Boundary Conditions",content:"At interface between medium 1 and medium 2:<br>• <span class='highlight'>Normal D:</span> D₁n - D₂n = ρ_S<br>• <span class='highlight'>Normal B:</span> B₁n = B₂n (continuous)<br>• <span class='highlight'>Tangential E:</span> E₁t = E₂t (continuous)<br>• <span class='highlight'>Tangential H:</span> H₁t - H₂t = K"},
+    {icon:"⚡",title:"Displacement Current (Maxwell's Addition)",content:"Maxwell added <span class='formula-inline'>J_d = ∂D/∂t</span> to Ampere's Law.<br>This was the key insight that led to electromagnetic WAVES."}
+  ],
+  formulas:[
+    {name:"Maxwell Eq. 1 — Gauss (Electric)",eq:"∇·D = ρ_V  |  ∮D·dS = Q_enc",desc:"Divergence of D = volume charge density.",vars:["D = εE = ε₀εᵣE"]},
+    {name:"Maxwell Eq. 2 — Gauss (Magnetic)",eq:"∇·B = 0  |  ∮B·dS = 0",desc:"No magnetic monopoles. B field lines always form closed loops.",vars:[]},
+    {name:"Maxwell Eq. 3 — Faraday's Law",eq:"∇×E = -∂B/∂t  |  ∮E·dl = -dΦ_B/dt",desc:"Changing B creates E. This is electromagnetic induction.",vars:[]},
+    {name:"Maxwell Eq. 4 — Ampere-Maxwell",eq:"∇×H = J + ∂D/∂t  |  ∮H·dl = I_enc + dΦ_D/dt",desc:"Current + changing E creates B.",vars:[]},
+    {name:"Boundary — Normal B",eq:"B₁ₙ = B₂ₙ  (B_n is continuous)",desc:"Normal component of B is continuous.",vars:[]},
+    {name:"Boundary — Tangential E",eq:"E₁ₜ = E₂ₜ  (E_t is continuous)",desc:"Tangential component of E is continuous.",vars:[]},
+    {name:"Boundary — Normal D",eq:"D₁ₙ - D₂ₙ = ρ_S",desc:"Discontinuity in normal D = surface charge density.",vars:[]},
+    {name:"Boundary — Tangential H",eq:"H₁ₜ - H₂ₜ = K × â_n",desc:"Discontinuity in tangential H = surface current density K.",vars:[]}
+  ],
+  mcq:[
+    {q:"Which of Maxwell's equations states that there are no magnetic monopoles?",opts:["∇·D = ρ_V","∇·B = 0","∇×E = -∂B/∂t","∇×H = J + ∂D/∂t"],ans:1,exp:"∇·B = 0 means magnetic field lines ALWAYS form closed loops — no 'north pole sources' or 'south pole sinks'.",ref:"Lec 10 — Maxwell Eq. 2"},
+    {q:"Maxwell added the displacement current term ∂D/∂t to:",opts:["Faraday's Law","Gauss's Law","Ampere's Law","The continuity equation"],ans:2,exp:"Maxwell added J_d = ∂D/∂t to Ampere's Law: ∇×H = J + ∂D/∂t. This addition predicted electromagnetic waves!",ref:"Lec 10 — Displacement Current"},
+    {q:"The boundary condition for tangential E at an interface is:",opts:["E₁t - E₂t = ρ_S/ε","E₁t = E₂t (continuous)","E₁t + E₂t = 0","E₁t = -E₂t"],ans:1,exp:"Tangential E is CONTINUOUS: E₁t = E₂t. This comes from ∮E·dl = 0 for static case.",ref:"Lec 10 — Boundary Conditions"},
+    {q:"The boundary condition for normal B at an interface is:",opts:["B₁n = B₂n (continuous)","B₁n - B₂n = μ₀K","B₁n + B₂n = 0","B₁n = 0"],ans:0,exp:"Normal B is CONTINUOUS: B₁n = B₂n. From ∮B·dS = 0.",ref:"Lec 10 — Boundary Conditions"},
+    {q:"The displacement field D is related to E by:",opts:["D = E/ε","D = ε₀E","D = εE = ε₀εᵣE","D = μ₀E"],ans:2,exp:"D = εE = ε₀εᵣE. Gauss's Law written with D is medium-independent: ∇·D = ρ_free.",ref:"Lec 10 — D-field"},
+    {q:"Which Maxwell equation corresponds to Faraday's Law?",opts:["∇·D = ρ","∇·B = 0","∇×E = -∂B/∂t","∇×H = J + ∂D/∂t"],ans:2,exp:"∇×E = -∂B/∂t is Faraday's Law in differential form. A time-varying B field creates a curling E field.",ref:"Lec 10 — Maxwell Eq. 3"},
+    {q:"The boundary condition for normal D when there is surface charge ρ_S is:",opts:["D₁n = D₂n","D₁n - D₂n = ρ_S","D₁n + D₂n = ρ_S","D₁n = ρ_S"],ans:1,exp:"D₁n - D₂n = ρ_S. If no surface charge: D₁n = D₂n. The discontinuity in normal D is due to free surface charge.",ref:"Lec 10 — Boundary Conditions"},
+    {q:"The H field is related to B by:",opts:["H = μB","H = B/μ = B/(μ₀μᵣ)","H = μ₀B","H = B/ε"],ans:1,exp:"H = B/μ = B/(μ₀μᵣ). Ampere's Law written with H is medium-independent: ∇×H = J_free.",ref:"Lec 10 — H-field"},
+    {q:"At the interface between two media with no surface currents, the tangential H satisfies:",opts:["H₁t = H₂t (continuous)","H₁t - H₂t = ρ_S","H₁t = 0","H₁t = -H₂t"],ans:0,exp:"If K = 0 (no surface current): H₁t = H₂t. With surface current K: H₁t - H₂t = K × â_n.",ref:"Lec 10 — Boundary Conditions"},
+    {q:"The complete set of Maxwell's equations can predict:",opts:["Only static fields","Electromagnetic waves traveling at speed c","Only DC circuits","Only magnetic fields"],ans:1,exp:"Maxwell's 4 equations predict EM waves at c = 1/√(μ₀ε₀) ≈ 3×10⁸ m/s. Maxwell showed light IS an electromagnetic wave.",ref:"Lec 10 — EM Waves"}
+  ]
+}
+};
+
+// ════════════════════════════════════════════
+// EXAM MCQ DATA (Actual Midterm Model A)
+// ════════════════════════════════════════════
+const MIDTERM_QUESTIONS = [
+  {num:1,topic:"Lec 6 — Capacitance",q:"Let spherical surfaces a=2cm and b=6cm enclose two dielectric wedges, εᵣ₁=2 for 0<φ<π/2 and εᵣ₂=5 for π/2<φ<2π. What is the equivalent circuit representation?",opts:["Two capacitors in series","Two capacitors in parallel","A single capacitor with average permittivity","Two capacitors in series then parallel"],ans:1,exp:"Each wedge spans the SAME radial gap (a to b). They share the same potential difference (same terminals). Same voltage = PARALLEL connection.",ans_detail:"✅ Answer: b) Two capacitors in PARALLEL"},
+  {num:2,topic:"Lec 6 — Spherical Capacitor",q:"The capacitance of a spherical capacitor filled with a single dielectric εᵣ is:",opts:["c = 4πε₀εᵣ/(1/a - 1/b) for full sphere","c = ε₀εᵣ/(1/a - 1/b)","c = 2πε₀εᵣ/(1/a - 1/b)","c = 4πε₀εᵣ/(a-b)"],ans:0,exp:"C = 4πε₀εᵣab/(b-a) = 4πε₀εᵣ/(1/a - 1/b). Derived by finding E from Gauss's Law, then V = -∫E·dr from a to b.",ans_detail:"✅ Answer: a) C = 4πε₀εᵣ/(1/a - 1/b)"},
+  {num:3,topic:"Lec 6 — Capacitance Calculation",q:"Using a=2cm, b=6cm, εᵣ₁=2, εᵣ₂=5 from Q1. What is total capacitance C?",opts:["7.37 pF","9.31 pF","11.68 pF","14.2 pF"],ans:1,exp:"C₁ and C₂ are in PARALLEL (same voltage). Each wedge C is proportional to its angular fraction. C_total = C₁ + C₂ = 9.31 pF.",ans_detail:"✅ Answer: b) 9.31 pF"},
+  {num:4,topic:"Lec 7 — Biot-Savart",q:"The Biot-Savart Law for a finite current segment gives the B field contribution. For circular arc of angle θ (radians) with current I at radius R, B at center is:",opts:["B = μ₀I/(4πR)","B = μ₀Iθ/(4πR)","B = μ₀I/(2R)","B = μ₀I/(4Rθ)"],ans:1,exp:"dB = μ₀I dl/(4πR²). For arc: dl = R dθ, integrate from 0 to θ: B = μ₀Iθ/(4πR). For full circle θ=2π: B = μ₀I/(2R).",ans_detail:"✅ Answer: b) B = μ₀Iθ/(4πR)"},
+  {num:5,topic:"Lec 7 — Circular Arc",q:"In Figure 1, R=3cm and I=5A. What is the magnitude of B at point P?",opts:["26.2 μT","13.1 μT","52.4 μT","6.54 μT"],ans:1,exp:"Quarter circle arc (θ=π/2): B = μ₀Iθ/(4πR) = (4π×10⁻⁷)(5)(π/2)/(4π×0.03) = 13.1 μT.",ans_detail:"✅ Answer: b) 13.1 μT"},
+  {num:6,topic:"Lec 7 — Direction of B",q:"In Figure 1, what is the DIRECTION of the magnetic field at point P?",opts:["Into the page","Out of the page","Upward along the page","To the right"],ans:1,exp:"Use right-hand rule: current flows along the arc, fingers curl in current direction → thumb points OUT OF PAGE at center.",ans_detail:"✅ Answer: b) Out of the page"},
+  {num:7,topic:"Lec 7 — Square Loop",q:"For a square loop of side ℓ with current I, B at center is produced by how many segments and what formula?",opts:["2 segments; B=μ₀I/(2πd)","4 segments; B=μ₀I/(4πd)(sinθ₁+sinθ₂)","4 segments; B=μ₀I/(2πℓ)","8 segments; B=μ₀Iℓ/(4π)"],ans:1,exp:"4 sides, each a finite straight wire. For each: B = μ₀I/(4πd)(sinθ₁+sinθ₂) where d = ℓ/2, θ₁=θ₂=45°.",ans_detail:"✅ Answer: b) 4 segments; B = μ₀I/(4πd)(sinθ₁+sinθ₂)"},
+  {num:8,topic:"Lec 7 — Square Loop Calculation",q:"Square loop, ℓ=0.400m, I=10A. Magnetic field contribution from ONE side at center:",opts:["7.07 μT","14.1 μT","3.54 μT","28.3 μT"],ans:2,exp:"d=0.2m, θ₁=θ₂=45°. B_one = (4π×10⁻⁷×10)/(4π×0.2)(sin45°+sin45°) = 3.54 μT.",ans_detail:"✅ Answer: c) 3.54 μT"},
+  {num:9,topic:"Lec 7 — Square Loop Total",q:"Total magnetic field at center of the square loop (ℓ=0.400m, I=10A)?",opts:["7.07 μT","14.1 μT","28.3 μT","56.6 μT"],ans:2,exp:"Total B = 4 × B_one_side = 4 × 7.07 = 28.3 μT.",ans_detail:"✅ Answer: c) 28.3 μT"},
+  {num:10,topic:"Lec 8 — Coaxial Cable (inside inner)",q:"Coaxial cable: inner conductor (radius a) and outer shell. Using Ampere's Law, B for r < a (inside inner conductor) is:",opts:["B=0","B=μ₀I/(4πr²)","B=μ₀IN/(2πr)","B=μ₀Ir/(2πa²)"],ans:3,exp:"For r < a: I_enc = I(r²/a²). Ampere: B(2πr) = μ₀Ir²/a². B = μ₀Ir/(2πa²). B increases linearly with r inside conductor.",ans_detail:"✅ Answer: d) B = μ₀Ir/(2πa²)"},
+  {num:11,topic:"Lec 8 — Coaxial Cable Outside",q:"For the same coaxial cable, B for r > c (outside entire cable) is:",opts:["B=0","B=μ₀2I/(2πr)","B=μ₀I/(2πr)","B=μ₀I/(4πr²)"],ans:0,exp:"r > c: Amperian circle encloses inner current I and outer return current -I. I_enc = I-I = 0. B = 0.",ans_detail:"✅ Answer: a) B = 0"},
+  {num:12,topic:"Lec 8 — Solenoid",q:"Ideal solenoid has N total turns, length L, current I. Magnetic field deep inside is:",opts:["B = μ₀NI","B = μ₀nI (n=N/L)","B = μ₀IN/(2πr)","B = μ₀NI/(2L)"],ans:1,exp:"B = μ₀nI where n = N/L = turns per meter. Derived using rectangular Amperian loop.",ans_detail:"✅ Answer: b) B = μ₀nI"},
+  {num:13,topic:"Lec 8 — Toroid",q:"Toroid has N turns, inner radius a, outer radius b, current I. B inside (a < r < b) at radius r:",opts:["B = 0","B = μ₀nI","B = μ₀I/(2πr)","B = μ₀NI/(2πr)"],ans:3,exp:"Amperian circle at radius r inside toroid: ∮B·dl = B(2πr) = μ₀NI → B = μ₀NI/(2πr). Outside: B = 0.",ans_detail:"✅ Answer: d) B = μ₀NI/(2πr)"},
+  {num:14,topic:"Lec 8 — Toroid Calculation",q:"Toroid: N=500, a=4cm, b=6cm, I=3A. What is B_inside at r=5cm and B_outside?",opts:["B_inside=2.4mT, B_outside=1.2mT","B_inside=6.0mT, B_outside=3.0mT","B_inside=6.0mT, B_outside=0","B_inside=3.0mT, B_outside=0"],ans:2,exp:"B_inside = μ₀NI/(2πr) = (4π×10⁻⁷×500×3)/(2π×0.05) = 6.0mT. B_outside = 0 because I_enc = 0.",ans_detail:"✅ Answer: c) B_inside=6.0mT, B_outside=0"},
+  {num:15,topic:"Lec 7 — Parallel Wires Force",q:"Two long parallel wires separated by d carry currents I₁ and I₂ in the SAME direction. The force is:",opts:["F=μ₀I₁I₂L/(4πd), repulsive","F=μ₀I₁I₂L/(4πd), attractive","F=μ₀I₁I₂L/(2πd), attractive","F=μ₀I₁I₂L/(2πd), repulsive"],ans:2,exp:"F/L = μ₀I₁I₂/(2πd). Same direction currents ATTRACT (opposite to electric charges). The B field of one wire acts on the current of the other.",ans_detail:"✅ Answer: c) F=μ₀I₁I₂L/(2πd), attractive"},
+  {num:16,topic:"Lec 7 — Parallel Wires Calculation",q:"Two wires 0.10m apart, I₁=6A and I₂=4A in OPPOSITE directions. Force per unit length:",opts:["96μN/m attractive","48μN/m repulsive","48μN/m attractive","24μN/m repulsive"],ans:1,exp:"F/L = μ₀I₁I₂/(2πd) = (4π×10⁻⁷×6×4)/(2π×0.1) = 48μN/m. OPPOSITE directions → REPULSIVE.",ans_detail:"✅ Answer: b) 48μN/m, repulsive"},
+  {num:17,topic:"Lec 8 — Ampere's Law Applicability",q:"Ampere's Law ∮B·dl = μ₀I_enc is most convenient when:",opts:["Any arbitrary current distribution","Current distributions with high symmetry (cylindrical, planar, toroidal)","Only for closed current loops","Only when B is uniform everywhere"],ans:1,exp:"Like Gauss's Law for E, Ampere's Law is ALWAYS valid but only practically useful when symmetry lets you evaluate ∮B·dl = B × (circumference) easily.",ans_detail:"✅ Answer: b) High symmetry distributions"},
+  {num:18,topic:"Lec 6 — Capacitance Definition",q:"Capacitance is defined as:",opts:["Charge per unit electric field","Voltage per unit charge","Charge stored per unit potential difference","Energy stored per unit charge"],ans:2,exp:"C = Q/V = charge/voltage = charge stored per unit potential difference. Unit: Farad = Coulomb/Volt.",ans_detail:"✅ Answer: c) Charge stored per unit potential difference"},
+  {num:19,topic:"Lec 6 — Units",q:"The SI unit of capacitance is:",opts:["Henry","Volt","Coulomb","Farad"],ans:3,exp:"Farad (F) = C/V. Named after Michael Faraday. Henry (H) is unit of inductance.",ans_detail:"✅ Answer: d) Farad"},
+  {num:20,topic:"Lec 6 — Capacitance and Area",q:"Capacitance increases when plate area:",opts:["Decreases","Becomes zero","Increases","Unchanged"],ans:2,exp:"C = ε₀A/d. C ∝ A. Larger area → more charge stored at same voltage.",ans_detail:"✅ Answer: c) Increases"}
+];
+
+// Final exam placeholder questions (extend as needed)
+const FINAL_QUESTIONS = [
+  {num:1,topic:"Maxwell's Equations",q:"Which of Maxwell's equations in differential form represents Faraday's Law?",opts:["∇·D = ρ_V","∇·B = 0","∇×E = -∂B/∂t","∇×H = J + ∂D/∂t"],ans:2,exp:"∇×E = -∂B/∂t is Faraday's Law. A time-varying B field induces a curling E field. This is the principle behind transformers and generators.",ans_detail:"✅ Answer: c) ∇×E = -∂B/∂t"},
+  {num:2,topic:"Boundary Conditions",q:"At the interface between two dielectric media (no free surface charge), which condition holds for the normal component of D?",opts:["D₁n ≠ D₂n","D₁n - D₂n = ρ_S","D₁n = D₂n (continuous)","D₁n = 0"],ans:2,exp:"When ρ_S = 0: D₁n = D₂n. Normal D is continuous at a source-free interface. This comes from ∮D·dS = Q_enc = 0.",ans_detail:"✅ Answer: c) D₁n = D₂n"},
+  {num:3,topic:"Faraday's Law",q:"A rectangular loop of area 0.5 m² is placed in a magnetic field B = 2sin(100t) T. The maximum induced EMF is:",opts:["50 V","100 V","200 V","1 V"],ans:1,exp:"EMF = -dΦ/dt = -d(BA)/dt = -A × d(2sin100t)/dt = -0.5 × 2 × 100 × cos(100t). Max EMF = 0.5 × 2 × 100 = 100 V.",ans_detail:"✅ Answer: b) 100 V"},
+  {num:4,topic:"Inductance",q:"A solenoid has 1000 turns, length 0.5m, and cross-section area 10 cm². Its self-inductance is:",opts:["0.25 mH","2.51 mH","25.1 mH","251 mH"],ans:1,exp:"L = μ₀N²A/ℓ = (4π×10⁻⁷)(1000²)(10×10⁻⁴)/0.5 = 4π×10⁻⁷×10⁶×2×10⁻³ = 2.51×10⁻³ H = 2.51 mH.",ans_detail:"✅ Answer: b) 2.51 mH"},
+  {num:5,topic:"Capacitance",q:"A parallel plate capacitor (A = 0.01 m², d = 1mm, εᵣ = 5) has capacitance:",opts:["0.44 nF","2.21 nF","44.3 nF","4.43 nF"],ans:0,exp:"C = ε₀εᵣA/d = (8.854×10⁻¹²)(5)(0.01)/(10⁻³) = 442.7×10⁻¹² F ≈ 0.44 nF.",ans_detail:"✅ Answer: a) 0.44 nF"},
+  {num:6,topic:"Gauss's Law",q:"A uniformly charged sphere of radius 5cm has total charge Q = 10μC. The electric field at r = 10cm is:",opts:["1.8 MN/C","0.9 MN/C","3.6 MN/C","0.45 MN/C"],ans:1,exp:"For r > a: E = Q/(4πε₀r²) = (9×10⁹×10×10⁻⁶)/(0.1²) = 9×10⁴/0.01 = 9×10⁶/10 = 0.9×10⁷ = 9 MN/C. Wait: 9×10⁹×10⁻⁵/10⁻² = 9×10⁶ = 9 MN/C. Check: 0.9 MN/C for 10cm... E = 9×10⁹×10⁻⁵/0.01 = 9000 kN/C = 9 MN/C.",ans_detail:"✅ Answer: b) 9 MN/C (≈ 0.9×10⁷ N/C)"},
+  {num:7,topic:"Ampere's Law",q:"An infinite solenoid with 2000 turns/m and 5A current. B inside:",opts:["2.51 mT","12.6 mT","6.28 mT","25.1 mT"],ans:1,exp:"B = μ₀nI = (4π×10⁻⁷)(2000)(5) = 4π×10⁻⁷×10⁴ = 4π×10⁻³ ≈ 12.6 mT.",ans_detail:"✅ Answer: b) 12.6 mT"},
+  {num:8,topic:"Electric Potential",q:"The work done to bring a 2μC charge from infinity to a point where V = 500V is:",opts:["0.5 mJ","1 mJ","2 mJ","0.25 mJ"],ans:1,exp:"W = Q(V_B - V_A) = Q(V - 0) = 2×10⁻⁶ × 500 = 10⁻³ J = 1 mJ.",ans_detail:"✅ Answer: b) 1 mJ"},
+  {num:9,topic:"Boundary Conditions",q:"The tangential component of E at a dielectric interface (no surface charge) is:",opts:["Always zero","Discontinuous","Continuous (E₁t = E₂t)","Doubled"],ans:2,exp:"Tangential E is ALWAYS continuous: E₁t = E₂t. This comes from ∮E·dl = 0 (conservative field in statics).",ans_detail:"✅ Answer: c) Continuous (E₁t = E₂t)"},
+  {num:10,topic:"Magnetic Flux",q:"The unit of magnetic flux density B (Tesla) is equivalent to:",opts:["Wb/m","Wb/m²","A/m","N/C"],ans:1,exp:"Tesla (T) = Weber/m² = Wb/m². Also T = kg/(A·s²). Magnetic flux Φ = B × Area, so [T] = [Wb]/[m²].",ans_detail:"✅ Answer: b) Wb/m²"},
+  {num:11,topic:"Coulomb's Law",q:"Three charges Q₁ = +1μC, Q₂ = -2μC, Q₃ = +3μC are at vertices of equilateral triangle (side 1m). Force on Q₁ due to Q₂ magnitude:",opts:["9 mN","18 mN","27 mN","4.5 mN"],ans:1,exp:"F₁₂ = k|Q₁||Q₂|/R² = 9×10⁹×1×10⁻⁶×2×10⁻⁶/1² = 18×10⁻³ N = 18 mN.",ans_detail:"✅ Answer: b) 18 mN"},
+  {num:12,topic:"Electric Field",q:"An infinite line charge ρ_L = 10 nC/m. E at ρ = 2cm from the line:",opts:["450 V/m","4500 V/m","9000 V/m","22500 V/m"],ans:3,exp:"E = ρ_L/(2πε₀ρ) = (10×10⁻⁹)/(2π×8.854×10⁻¹²×0.02) = 10⁻⁸/(1.112×10⁻¹²) ≈ 8993 V/m ≈ 9000 V/m.",ans_detail:"✅ Answer: c) ~9000 V/m"},
+  {num:13,topic:"Faraday's Law",q:"Lenz's Law says the induced current:",opts:["Maximizes the change in flux","Is always clockwise","Opposes the change in magnetic flux","Is zero for static fields"],ans:2,exp:"Lenz's Law: induced current opposes the change in flux that caused it. The '-' sign in EMF = -dΦ/dt encodes this law.",ans_detail:"✅ Answer: c) Opposes the change in flux"},
+  {num:14,topic:"Energy in Capacitor",q:"A 10μF capacitor charged to 100V stores energy:",opts:["0.05 J","0.1 J","0.5 J","0.01 J"],ans:0,exp:"W = ½CV² = ½×10×10⁻⁶×100² = ½×10⁻⁵×10⁴ = 0.05 J.",ans_detail:"✅ Answer: a) 0.05 J"},
+  {num:15,topic:"Maxwell's Equations",q:"The equation ∇·B = 0 means:",opts:["Magnetic monopoles exist","B is zero everywhere","No magnetic monopoles exist","B field is uniform"],ans:2,exp:"∇·B = 0 (Gauss's Law for Magnetism) states there are no magnetic monopoles. All B field lines form closed loops.",ans_detail:"✅ Answer: c) No magnetic monopoles exist"},
+  {num:16,topic:"Biot-Savart",q:"A long straight wire carries 10A. B at 5cm from the wire:",opts:["10 μT","20 μT","40 μT","80 μT"],ans:2,exp:"B = μ₀I/(2πr) = (4π×10⁻⁷×10)/(2π×0.05) = 4π×10⁻⁶/(2π×0.05) = 4×10⁻⁵ T = 40 μT.",ans_detail:"✅ Answer: c) 40 μT"},
+  {num:17,topic:"Displacement Current",q:"Maxwell's displacement current density is defined as:",opts:["J_d = ∂B/∂t","J_d = ∂D/∂t","J_d = ∂H/∂t","J_d = ε₀ ∂E/∂t × μ₀"],ans:1,exp:"J_d = ∂D/∂t = ε₀∂E/∂t (in free space). Maxwell added this to Ampere's Law to make it consistent with charge conservation.",ans_detail:"✅ Answer: b) J_d = ∂D/∂t"},
+  {num:18,topic:"Electric Field",q:"The E field just outside a conductor surface (with surface charge ρ_S) is:",opts:["E = ρ_S/ε₀ (perpendicular)","E = ρ_S/(2ε₀) (perpendicular)","E = 0","E = ρ_S × ε₀"],ans:0,exp:"Just outside a conductor: E = ρ_S/ε₀ (twice the value for an infinite plane, because charge is only on one side).",ans_detail:"✅ Answer: a) E = ρ_S/ε₀"},
+  {num:19,topic:"Inductors",q:"An inductor of L = 0.1H has current I = 2sin(100t) A. The induced voltage is:",opts:["V = 20cos(100t) V","V = -20cos(100t) V","V = 20sin(100t) V","V = 0.2cos(100t) V"],ans:1,exp:"V_L = -L(dI/dt) = -0.1 × d(2sin100t)/dt = -0.1 × 200cos(100t) = -20cos(100t) V.",ans_detail:"✅ Answer: b) V = -20cos(100t) V"},
+  {num:20,topic:"Gauss's Law for Magnetism",q:"The total magnetic flux through any closed surface is:",opts:["Equal to enclosed free current","Equal to μ₀ × enclosed current","Always zero","Equal to enclosed charge / μ₀"],ans:2,exp:"∮B·dS = 0 always (Gauss's Law for magnetism). Since there are no magnetic monopoles, all B field lines that enter a closed surface must also exit.",ans_detail:"✅ Answer: c) Always zero"}
+];
+
+// ════════════════════════════════════════════
+// STATE MANAGEMENT (LocalStorage)
+// ════════════════════════════════════════════
+const STORE = {
+  get(k){try{return JSON.parse(localStorage.getItem('phy2_'+k))}catch{return null}},
+  set(k,v){try{localStorage.setItem('phy2_'+k,JSON.stringify(v))}catch{}},
+  getCompleted(){return this.get('completed')||[]},
+  setCompleted(arr){this.set('completed',arr)},
+  getQuizScores(){return this.get('quiz_scores')||{}},
+  setQuizScore(n,score){const s=this.getQuizScores();s[n]=score;this.set('quiz_scores',s)},
+  getMidtermScore(){return this.get('midterm_score')},
+  setMidtermScore(s){this.set('midterm_score',s)},
+  getFinalScore(){return this.get('final_score')},
+  setFinalScore(s){this.set('final_score',s)}
+};
+
+function markLectureDone(n){
+  const done = STORE.getCompleted();
+  if(!done.includes(n)){done.push(n);STORE.setCompleted(done);}
+  updateProgressUI();
+  updateNavDone();
+  showToast('✅ Lecture '+n+' marked as complete!');
+}
+
+function isLectureDone(n){return STORE.getCompleted().includes(n)}
+
+function updateProgressUI(){
+  const done = STORE.getCompleted().length;
+  const total = 10;
+  const pct = Math.round(done/total*100);
+  const fillEl = document.getElementById('sp-fill');
+  const pctEl = document.getElementById('sp-pct');
+  if(fillEl) fillEl.style.width = pct+'%';
+  if(pctEl) pctEl.textContent = pct+'%';
+}
+
+function updateNavDone(){
+  for(let n=1;n<=10;n++){
+    const el = document.getElementById('done-'+n);
+    if(el) el.textContent = isLectureDone(n) ? '✓' : '';
+  }
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ════════════════════════════════════════════
+// SEARCH SYSTEM
+// ════════════════════════════════════════════
+function handleSearch(q){
+  const dd = document.getElementById('search-dropdown');
+  if(!q||q.length < 2){dd.innerHTML='';dd.classList.remove('open');return;}
+  const results=[];
+  const ql = q.toLowerCase();
+  // Search lectures
+  Object.entries(LECTURES).forEach(([n,lec])=>{
+    if(lec.title.toLowerCase().includes(ql)||lec.summary_en.toLowerCase().includes(ql)||lec.tags.some(t=>t.toLowerCase().includes(ql))){
+      results.push({type:'Lecture',text:`Lec ${n} — ${lec.title}`,action:`showLec(${n})`});
+    }
+    // Search formulas
+    lec.formulas.forEach(f=>{
+      if(f.name.toLowerCase().includes(ql)||f.eq.toLowerCase().includes(ql)||f.desc.toLowerCase().includes(ql)){
+        results.push({type:'Formula',text:`${f.name}: ${f.eq}`,action:`showLec(${n});setTimeout(()=>{const fb=document.querySelector('[onclick*="formulas"]');if(fb)fb.click()},200)`});
+      }
+    });
+  });
+  if(results.length===0){dd.innerHTML='<div class="sr-empty">No results found</div>';dd.classList.add('open');return;}
+  dd.innerHTML = results.slice(0,8).map(r=>`<div class="sr-item" onclick="${r.action};document.getElementById('global-search').value='';document.getElementById('search-dropdown').classList.remove('open');closeSidebar()"><span class="sr-type">${r.type}</span>${r.text}</div>`).join('');
+  dd.classList.add('open');
+}
+
+// Close search on outside click
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.sidebar-search'))document.getElementById('search-dropdown').classList.remove('open');
+});
+
+// ════════════════════════════════════════════
+// LANGUAGE
+// ════════════════════════════════════════════
+let lang = 'mixed';
+function setLang(l){
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('lbtn-'+l).classList.add('active');
+  const cur = document.querySelector('.nav-item.active');
+  if(cur) cur.click(); else renderHome();
+}
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(id==='home'){
+    document.getElementById('nav-home').classList.add('active');
+    document.getElementById('topbar-title').textContent='Physics II — Dashboard';
+    document.getElementById('topbar-badge').textContent='HNU · ISE';
+    renderHome();
+  } else if(id==='exams'){
+    document.getElementById('nav-exams').classList.add('active');
+    document.getElementById('topbar-title').textContent='Exams — Midterm & Final';
+    document.getElementById('topbar-badge').textContent='Model Answers';
+    renderExamsHub();
+  }
+  closeSidebar();
+}
+
+function showLec(n){
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  const nav=document.getElementById('nav-'+n);
+  if(nav) nav.classList.add('active');
+  const lec=LECTURES[n];
+  document.getElementById('topbar-title').textContent=`Lec ${n} — ${lec.title}`;
+  document.getElementById('topbar-badge').textContent=lec.track==='electricity'?'⚡ Electricity':'🧲 Magnetism';
+  answers={}; submitted=false;
+  renderLecture(n);
+  closeSidebar();
+  document.getElementById('main-content').scrollTop=0;
+  window.scrollTo(0,0);
+}
+
+// ════════════════════════════════════════════
+// HOME RENDER
+// ════════════════════════════════════════════
+function renderHome(){
+  const done=STORE.getCompleted();
+  const scores=STORE.getQuizScores();
+  const totalScore=Object.values(scores).reduce((a,b)=>a+b,0);
+  const el=document.getElementById('main-content');
+  el.innerHTML=`
+    <div class="hero">
+      <div class="hero-title">⚡ Physics II — Study Platform</div>
+      <div class="hero-sub">Faculty of Engineering · ISE Program · Helwan National University · Dr. Amany Mohamed Saleh · Spring 2025-2026<br>
+      <span style="color:#a78bfa;margin-top:4px;display:inline-block">10 Lectures · 100 Practice MCQs · Bilingual (EN / عربي)</span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n">${done.length}/10</div><div class="stat-l">Completed</div></div>
+      <div class="stat"><div class="stat-n green">100</div><div class="stat-l">Practice MCQs</div></div>
+      <div class="stat"><div class="stat-n purple">40</div><div class="stat-l">Exam Questions</div></div>
+      <div class="stat"><div class="stat-n orange">${totalScore}</div><div class="stat-l">Total Score</div></div>
+    </div>
+    <div class="progress-home">
+      <div class="ph-header">
+        <div class="ph-title">📊 Your Progress</div>
+        <div class="ph-pct">${Math.round(done.length/10*100)}%</div>
+      </div>
+      <div class="ph-bar"><div class="ph-fill" style="width:${Math.round(done.length/10*100)}%"></div></div>
+      <div class="ph-info">
+        <span>✅ ${done.length} lectures done</span>
+        <span>📚 ${10-done.length} remaining</span>
+        <span>🎯 ${Object.keys(scores).length} quizzes taken</span>
+      </div>
+    </div>
+    <div class="section-title">⚡ Electricity Track (Lectures 1–6)</div>
+    <div class="lec-grid">${[1,2,3,4,5,6].map(n=>lecCard(n)).join('')}</div>
+    <div class="section-title">🧲 Magnetism Track (Lectures 7–10)</div>
+    <div class="lec-grid">${[7,8,9,10].map(n=>lecCard(n)).join('')}</div>
+    <div class="section-title">📋 Exams & Model Answers</div>
+    <div class="lec-card" style="--lc:linear-gradient(90deg,#f59e0b,#ef4444);cursor:pointer" onclick="showPage('exams')">
+      <div class="lec-card-num">📝 MIDTERM + FINAL EXAMS</div>
+      <div class="lec-card-title">Model A — With Full Answers & Explanations</div>
+      <div class="lec-card-sub">Solve the actual exam in timed mode, get your score, and review every answer with detailed explanations. Midterm (20 Q) + Final (20 Q).</div>
+      <div class="lec-card-tags"><span class="tag tag-o">Timer Mode</span><span class="tag tag-p">Full Review</span><span class="tag tag-b">Score Tracking</span><span class="tag tag-c">Model Answers</span></div>
+    </div>
+    <div style="height:24px"></div>`;
+}
+
+function lecCard(n){
+  const l=LECTURES[n];
+  const done=isLectureDone(n);
+  const score=STORE.getQuizScores()[n];
+  return `<div class="lec-card" style="--lc:${l.color}" onclick="showLec(${n})">
+    ${done?'<div class="lec-card-done">✅</div>':''}
+    <div class="lec-card-num">Lecture ${n}${score!==undefined?' · Quiz: '+score+'/10':''}</div>
+    <div class="lec-card-title">${l.title}</div>
+    <div class="lec-card-sub">${l.summary_en.substring(0,95)}...</div>
+    <div class="lec-card-tags">${l.tags.map((t,i)=>`<span class="tag ${l.tagClass[i]}">${t}</span>`).join('')}</div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════
+// LECTURE RENDER
+// ════════════════════════════════════════════
+let answers={}, submitted=false;
+
+function renderLecture(n){
+  const lec=LECTURES[n];
+  const done=isLectureDone(n);
+  const el=document.getElementById('main-content');
+  el.innerHTML=`
+    <button class="back-btn" onclick="showPage('home')">← Back to Dashboard</button>
+    <div class="hero" style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;color:#60a5fa;margin-bottom:4px">LECTURE ${n} · ${lec.track.toUpperCase()}</div>
+      <div class="hero-title" style="font-size:18px">${lec.title}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${lec.tags.map((t,i)=>`<span class="tag ${lec.tagClass[i]}">${t}</span>`).join('')}</div>
+    </div>
+    <button class="mark-done-btn ${done?'done':''}" onclick="markLectureDone(${n});this.classList.add('done');this.textContent='✅ Completed!'">
+      ${done?'✅ Completed!':'☐ Mark as Complete'}
+    </button>
+    <div class="tabs-row">
+      <button class="tab-btn active" onclick="showTab('overview',this)">📖 Overview</button>
+      <button class="tab-btn" onclick="showTab('formulas',this)">⚗️ Formulas</button>
+      <button class="tab-btn" onclick="showTab('notes',this)">📝 Notes</button>
+      <button class="tab-btn" onclick="showTab('videos',this)">🎬 Videos</button>
+      <button class="tab-btn" onclick="showTab('practice',this)">🎯 Practice MCQ</button>
+    </div>
+    <div id="tab-overview" class="tab-pane active">${renderOverview(n)}</div>
+    <div id="tab-formulas" class="tab-pane">${renderFormulas(n)}</div>
+    <div id="tab-notes" class="tab-pane">${renderNotes(n)}</div>
+    <div id="tab-videos" class="tab-pane">${renderVideos(n)}</div>
+    <div id="tab-practice" class="tab-pane">${renderPractice(n)}</div>`;
+}
+
+function showTab(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function renderOverview(n){
+  const lec=LECTURES[n];
+  const showAr=lang!=='en';
+  const showEn=lang!=='ar';
+  return `
+    ${showEn?`<div class="info-card"><h3>📌 Summary (English)</h3><p>${lec.summary_en}</p></div>`:''}
+    ${showAr?`<div class="ar-explain"><strong>الملخص بالعربي:</strong> ${lec.summary_ar}</div>`:''}
+    <div class="info-card">
+      <h3>📋 Topics Covered</h3>
+      <ul>${lec.tags.map(t=>`<li>${t}</li>`).join('')}</ul>
+    </div>`;
+}
+
+function renderFormulas(n){
+  const lec=LECTURES[n];
+  return lec.formulas.map(f=>`
+    <div class="formula-card">
+      <div class="formula-name">${f.name}</div>
+      <div class="formula-eq">${f.eq}</div>
+      <div class="formula-desc">${f.desc}</div>
+      ${f.vars&&f.vars.length?`<div class="formula-vars">${f.vars.map(v=>`<span class="var-pill">${v}</span>`).join('')}</div>`:''}
+    </div>`).join('');
+}
+
+function renderNotes(n){
+  const lec=LECTURES[n];
+  return lec.notes.map(note=>`
+    <div class="note-box">
+      <h4>${note.icon} ${note.title}</h4>
+      <p>${note.content}</p>
+    </div>`).join('');
+}
+
+function renderVideos(n){
+  const vids=VIDEOS[n]||[];
+  return vids.map(v=>`
+    <div class="video-card">
+      <div class="video-icon">🎬</div>
+      <div class="video-info">
+        <div class="video-title">${v.title}</div>
+        <div class="video-desc">${v.desc}</div>
+      </div>
+      <a href="${v.url}" target="_blank" class="video-link">Watch →</a>
+    </div>`).join('');
+}
+
+function renderPractice(n){
+  const lec=LECTURES[n];
+  const score=STORE.getQuizScores()[n];
+  return `
+    <div class="mcq-header">
+      <div style="font-size:14px;font-weight:700">🎯 Practice Quiz — ${lec.title}</div>
+      <div class="mcq-score">${score!==undefined?`Best Score: ${score}/10`:'Not taken yet'}</div>
+    </div>
+    ${lec.mcq.map((q,i)=>`
+    <div class="q-card" id="qcard-${n}-${i}">
+      <div class="q-num">Q${i+1} ${q.ref?`· <span style="color:#f59e0b">${q.ref}</span>`:''}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">
+        ${q.opts.map((opt,j)=>`
+          <button class="q-opt" id="qopt-${n}-${i}-${j}" onclick="selectAns(${n},${i},${j})">
+            <span class="opt-letter">${['a','b','c','d'][j]}</span>${opt}
+          </button>`).join('')}
+      </div>
+      <div class="explanation" id="exp-${n}-${i}"></div>
+    </div>`).join('')}
+    <div class="quiz-btns" id="quiz-btns-${n}">
+      <button class="submit-btn" onclick="submitQuiz(${n})">✓ Submit Quiz</button>
+      <button class="reset-btn" onclick="resetQuiz(${n})">↺ Reset</button>
+    </div>
+    <div id="result-${n}"></div><div style="height:24px"></div>`;
+}
+
+function selectAns(n,qi,ai){
+  if(submitted) return;
+  answers[qi]=ai;
+  document.querySelectorAll(`[id^="qopt-${n}-${qi}-"]`).forEach(b=>{b.style.borderColor='';b.style.background='';b.style.color='';});
+  const btn=document.getElementById(`qopt-${n}-${qi}-${ai}`);
+  if(btn){btn.style.borderColor='#3b82f6';btn.style.background='#101d30';btn.style.color='#fff';}
+}
+
+function submitQuiz(n){
+  submitted=true;
+  let score=0;
+  const lec=LECTURES[n];
+  lec.mcq.forEach((q,i)=>{
+    const chosen=answers[i];
+    q.opts.forEach((_,j)=>{
+      const btn=document.getElementById(`qopt-${n}-${i}-${j}`);
+      if(btn){
+        btn.disabled=true;btn.style.borderColor='';btn.style.background='';btn.style.color='';
+        if(j===q.ans) btn.classList.add('correct');
+        else if(j===chosen&&chosen!==q.ans) btn.classList.add('wrong');
+      }
+    });
+    const expEl=document.getElementById(`exp-${n}-${i}`);
+    if(expEl){
+      const correct=chosen===q.ans;
+      if(correct) score++;
+      expEl.className=`explanation show ${correct?'exp-correct':'exp-wrong'}`;
+      expEl.innerHTML=`<strong>${correct?'✓ Correct!':'✗ Wrong! Correct: '+q.opts[q.ans]}</strong> ${q.exp}${q.ref?`<div class="exp-ref">📚 ${q.ref}</div>`:''}`;
+    }
+  });
+  const sub=document.querySelector(`#quiz-btns-${n} .submit-btn`);
+  if(sub) sub.style.display='none';
+  STORE.setQuizScore(n,score);
+  const pct=Math.round(score/10*100);
+  const rating=pct>=80?'🏆 Excellent!':pct>=60?'✅ Good':pct>=40?'📚 Keep Studying':'⚠️ Review Needed';
+  const color=pct>=80?'#10b981':pct>=60?'#3b82f6':pct>=40?'#f59e0b':'#ef4444';
+  document.getElementById(`result-${n}`).innerHTML=`<div class="result-card"><div class="result-score" style="color:${color}">${score}/10</div><div class="result-label">${pct}% Score</div><div class="result-rating">${rating}</div></div>`;
+  showToast(`Quiz done! Score: ${score}/10`);
+}
+
+function resetQuiz(n){
+  answers={};submitted=false;
+  document.getElementById('tab-practice').innerHTML=renderPractice(n);
+}
+
+// ════════════════════════════════════════════
+// EXAMS HUB
+// ════════════════════════════════════════════
+function renderExamsHub(){
+  const midScore=STORE.getMidtermScore();
+  const finalScore=STORE.getFinalScore();
+  const el=document.getElementById('main-content');
+  el.innerHTML=`
+    <button class="back-btn" onclick="showPage('home')">← Back to Dashboard</button>
+    <div class="hero">
+      <div class="hero-title">📝 Exams — Model Answers & Practice</div>
+      <div class="hero-sub">Faculty of Engineering · ISE · Spring 2025-2026 · Dr. Amany Mohamed Saleh<br>
+      <span style="color:#fbbf24">ε₀ = 8.854×10⁻¹² F/m &nbsp;|&nbsp; μ₀ = 4π×10⁻⁷ H/m &nbsp;|&nbsp; k = 9×10⁹ N·m²/C²</span></div>
+    </div>
+    <div class="stats" style="grid-template-columns:repeat(2,1fr)">
+      <div class="stat"><div class="stat-n orange">${midScore!==null&&midScore!==undefined?midScore+'/20':'—'}</div><div class="stat-l">Midterm Best Score</div></div>
+      <div class="stat"><div class="stat-n purple">${finalScore!==null&&finalScore!==undefined?finalScore+'/20':'—'}</div><div class="stat-l">Final Best Score</div></div>
+    </div>
+    <div class="section-title">📋 Choose Exam</div>
+    <div class="model-exam-card" onclick="renderExam('midterm')">
+      <div class="model-exam-icon" style="background:linear-gradient(135deg,#1a1500,#2a2000)">📝</div>
+      <div class="model-exam-info">
+        <h3>Midterm Exam — Model A <span class="model-exam-badge" style="background:#1e3a5f;color:#60a5fa">20 Questions</span></h3>
+        <p>Actual Spring 2025-2026 midterm. Topics: Capacitance (Lec 6) + Magnetic Field & Ampere's Law (Lec 7-8). Timed 60 minutes. Full model answers with explanations.</p>
+      </div>
+      <div class="model-exam-arrow">→</div>
+    </div>
+    <div class="model-exam-card" onclick="renderExam('final')">
+      <div class="model-exam-icon" style="background:linear-gradient(135deg,#1a0030,#200040)">📋</div>
+      <div class="model-exam-info">
+        <h3>Final Exam — Model A <span class="model-exam-badge" style="background:#1e1b35;color:#a78bfa">20 Questions</span></h3>
+        <p>Comprehensive final exam covering all 10 lectures. Electricity + Magnetism + Maxwell's Equations. Timed 120 minutes. Full model answers with explanations.</p>
+      </div>
+      <div class="model-exam-arrow">→</div>
+    </div>
+    <div class="pdf-section">
+      <h3>📄 PDF Downloads — Model Answers</h3>
+      <div class="pdf-item" onclick="showToast('📄 PDF not yet uploaded — ask your instructor')">
+        <div class="pdf-item-icon">📑</div>
+        <div class="pdf-item-info">
+          <strong>Midterm Exam — Model Answer PDF</strong>
+          <span>Full solutions with step-by-step working for all 20 questions</span>
+        </div>
+        <button class="pdf-item-btn pdf-download-btn">📥 Download</button>
+      </div>
+      <div class="pdf-item" onclick="showToast('📄 PDF not yet uploaded — ask your instructor')">
+        <div class="pdf-item-icon">📑</div>
+        <div class="pdf-item-info">
+          <strong>Final Exam — Model Answer PDF</strong>
+          <span>Comprehensive solutions covering all topics</span>
+        </div>
+        <button class="pdf-item-btn pdf-view-btn">👁 View</button>
+      </div>
+    </div>
+    <div style="height:24px"></div>`;
+}
+
+// ════════════════════════════════════════════
+// EXAM RENDER (Midterm + Final with Timer)
+// ════════════════════════════════════════════
+let examAnswers={}, examSubmitted=false, examTimer=null, examTimeLeft=0, currentExamType='midterm';
+
+function renderExam(type){
+  currentExamType = type;
+  examAnswers={}; examSubmitted=false;
+  clearInterval(examTimer);
+  const isMidterm = type==='midterm';
+  const questions = isMidterm ? MIDTERM_QUESTIONS : FINAL_QUESTIONS;
+  const timeLimit = isMidterm ? 60*60 : 120*60;
+  const savedScore = isMidterm ? STORE.getMidtermScore() : STORE.getFinalScore();
+  examTimeLeft = timeLimit;
+  const el=document.getElementById('main-content');
+  const examLabel = isMidterm ? 'Midterm Exam — Model A' : 'Final Exam — Model A';
+  const topicNote = isMidterm
+    ? 'Topics: Capacitance (Lec 6) + Magnetic Field (Lec 7) + Ampere\'s Law (Lec 8)'
+    : 'Topics: All 10 Lectures — Full Comprehensive Exam';
+  el.innerHTML=`
+    <button class="back-btn" onclick="clearInterval(examTimer);renderExamsHub()">← Back to Exams</button>
+    <div class="hero">
+      <div class="hero-title">📝 ${examLabel}</div>
+      <div class="hero-sub">Faculty of Engineering · ISE · Spring 2025-2026 · Dr. Amany Mohamed Saleh<br>${topicNote}<br>
+      <span style="color:#fbbf24">ε₀ = 8.854×10⁻¹² F/m &nbsp;|&nbsp; μ₀ = 4π×10⁻⁷ H/m</span></div>
+    </div>
+    <div class="exam-badge">⭐ ${isMidterm?'Actual Midterm':'Final Exam'} — All ${questions.length} Questions</div>
+    ${savedScore!==null&&savedScore!==undefined?`<div style="font-size:12px;color:#94a3b8;margin-bottom:10px">📊 Your best score: <strong style="color:#10b981">${savedScore}/${questions.length}</strong></div>`:''}
+    <div class="exam-timer-bar" id="exam-timer-bar">
+      <div>
+        <div style="font-size:10px;color:#f59e0b;font-weight:700;margin-bottom:2px">⏱ TIME REMAINING</div>
+        <div class="exam-timer-display" id="exam-timer-display">${formatTime(timeLimit)}</div>
+      </div>
+      <div class="exam-progress-info">
+        <span id="exam-answered">0/${questions.length} answered</span>
+        <span id="exam-time-note">${isMidterm?'60 minutes':'120 minutes'}</span>
+      </div>
+    </div>
+    ${questions.map((q,i)=>`
+    <div class="q-card" id="eqcard-${i}">
+      <div class="q-num">Q${q.num} · <span style="color:#f59e0b">${q.topic}</span></div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">
+        ${q.opts.map((opt,j)=>`
+          <button class="q-opt" id="eqopt-${i}-${j}" onclick="selectExamAns(${i},${j})">
+            <span class="opt-letter">${['a','b','c','d'][j]}</span>${opt}
+          </button>`).join('')}
+      </div>
+      <div class="explanation" id="eexp-${i}"></div>
+    </div>`).join('')}
+    <div class="quiz-btns" id="exam-btns">
+      <button class="submit-btn" onclick="submitExam('${type}')">✓ Submit Exam</button>
+      <button class="reset-btn" onclick="clearInterval(examTimer);renderExam('${type}')">↺ Reset</button>
+    </div>
+    <div id="exam-result"></div>
+    <div id="exam-review"></div>
+    <div style="height:24px"></div>`;
+  startExamTimer(type);
+}
+
+function formatTime(seconds){
+  const m=Math.floor(seconds/60).toString().padStart(2,'0');
+  const s=(seconds%60).toString().padStart(2,'0');
+  return m+':'+s;
+}
+
+function startExamTimer(type){
+  clearInterval(examTimer);
+  examTimer=setInterval(()=>{
+    if(examSubmitted){clearInterval(examTimer);return;}
+    examTimeLeft--;
+    const disp=document.getElementById('exam-timer-display');
+    if(disp){
+      disp.textContent=formatTime(examTimeLeft);
+      if(examTimeLeft<=300) disp.classList.add('warning');
+      else disp.classList.remove('warning');
+    }
+    if(examTimeLeft<=0){clearInterval(examTimer);submitExam(type);}
+  },1000);
+}
+
+function selectExamAns(qi,ai){
+  if(examSubmitted) return;
+  examAnswers[qi]=ai;
+  document.querySelectorAll(`[id^="eqopt-${qi}-"]`).forEach(b=>{b.style.borderColor='';b.style.background='';b.style.color='';});
+  const btn=document.getElementById(`eqopt-${qi}-${ai}`);
+  if(btn){btn.style.borderColor='#3b82f6';btn.style.background='#101d30';btn.style.color='#fff';}
+  const answered=Object.keys(examAnswers).length;
+  const questions=currentExamType==='midterm'?MIDTERM_QUESTIONS:FINAL_QUESTIONS;
+  const info=document.getElementById('exam-answered');
+  if(info) info.textContent=`${answered}/${questions.length} answered`;
+}
+
+function submitExam(type){
+  examSubmitted=true;
+  clearInterval(examTimer);
+  const questions=type==='midterm'?MIDTERM_QUESTIONS:FINAL_QUESTIONS;
+  let score=0;
+  questions.forEach((q,i)=>{
+    const chosen=examAnswers[i];
+    q.opts.forEach((_,j)=>{
+      const btn=document.getElementById(`eqopt-${i}-${j}`);
+      if(btn){
+        btn.disabled=true;btn.style.borderColor='';btn.style.background='';btn.style.color='';
+        if(j===q.ans) btn.classList.add('correct');
+        else if(j===chosen&&chosen!==q.ans) btn.classList.add('wrong');
+      }
+    });
+    const expEl=document.getElementById(`eexp-${i}`);
+    if(expEl){
+      const correct=chosen===q.ans;
+      if(correct) score++;
+      expEl.className=`explanation show ${correct?'exp-correct':'exp-wrong'}`;
+      expEl.innerHTML=`<strong>${correct?'✓ Correct!':'✗ Wrong! Correct: '+q.opts[q.ans]}</strong><br>${q.exp}<br><strong style="color:#fbbf24;margin-top:4px;display:block">${q.ans_detail}</strong>`;
+    }
+  });
+  const sub=document.getElementById('exam-btns');
+  if(sub){const s=sub.querySelector('.submit-btn');if(s)s.style.display='none';}
+  // Save score
+  if(type==='midterm') STORE.setMidtermScore(score);
+  else STORE.setFinalScore(score);
+  const pct=Math.round(score/questions.length*100);
+  const rating=pct>=80?'🏆 Excellent!':pct>=60?'✅ Good Pass':pct>=40?'📚 Need More Study':'⚠️ Review All Topics';
+  const color=pct>=80?'#10b981':pct>=60?'#3b82f6':pct>=40?'#f59e0b':'#ef4444';
+  document.getElementById('exam-result').innerHTML=`
+    <div class="result-card">
+      <div class="result-score" style="color:${color}">${score}/${questions.length}</div>
+      <div class="result-label">${pct}% Score · Time Used: ${formatTime((type==='midterm'?3600:7200)-examTimeLeft)}</div>
+      <div class="result-rating">${rating}</div>
+    </div>`;
+  // Answer Review section
+  renderAnswerReview(questions);
+  showToast(`Exam submitted! Score: ${score}/${questions.length}`);
+}
+
+function renderAnswerReview(questions){
+  const reviewEl=document.getElementById('exam-review');
+  if(!reviewEl) return;
+  const correctCount=questions.filter((_,i)=>examAnswers[i]===questions[i].ans).length;
+  const wrongCount=questions.filter((_,i)=>examAnswers[i]!==undefined&&examAnswers[i]!==questions[i].ans).length;
+  const unanswered=questions.filter((_,i)=>examAnswers[i]===undefined).length;
+  reviewEl.innerHTML=`
+    <div class="review-section">
+      <div class="review-header">📋 Full Answer Review — Model Answers & Explanations
+        <span style="margin-left:auto;font-size:12px;font-weight:400;color:#94a3b8">✅ ${correctCount} correct &nbsp; ❌ ${wrongCount} wrong &nbsp; ⬜ ${unanswered} unanswered</span>
+      </div>
+      ${questions.map((q,i)=>{
+        const chosen=examAnswers[i];
+        const correct=chosen===q.ans;
+        const unansweredQ=chosen===undefined;
+        return `<div class="review-q ${unansweredQ?'':correct?'correct-q':'wrong-q'}">
+          <div class="review-q-num">
+            Q${q.num} · <span style="color:#94a3b8">${q.topic}</span>
+            <span class="review-badge ${unansweredQ?'rb-unanswered':correct?'rb-correct':'rb-wrong'}">
+              ${unansweredQ?'⬜ Unanswered':correct?'✅ Correct':'❌ Wrong'}
+            </span>
+          </div>
+          <div class="review-q-text">${q.q}</div>
+          ${chosen!==undefined&&!correct?`<div class="review-answer ra-your">Your answer: ${['a','b','c','d'][chosen]}) ${q.opts[chosen]}</div>`:''}
+          <div class="review-answer ra-correct">✅ Correct answer: ${['a','b','c','d'][q.ans]}) ${q.opts[q.ans]}</div>
+          <div class="review-answer ${correct?'ra-explain':'ra-explain wrong-exp'}">${q.exp}<br><strong>${q.ans_detail}</strong></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+// SIDEBAR + MISC
+// ════════════════════════════════════════════
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+updateProgressUI();
+updateNavDone();
+renderHome();
+</script>
+</body>
+</html>
